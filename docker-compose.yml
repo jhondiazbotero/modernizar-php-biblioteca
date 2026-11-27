@@ -1,6 +1,8 @@
 services:
   app:
-    build: docker/
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     ports:
       - "127.0.0.1:8090:80"
     environment:
@@ -10,7 +12,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       APP_ENV: ${APP_ENV:-production}
     volumes:
-      - ./src:/var/www/html
+      - ./public:/var/www/app/public
+      - ./legacy:/var/www/app/legacy
+      - ./src:/var/www/app/src
     depends_on:
       db:
         condition: service_healthy
