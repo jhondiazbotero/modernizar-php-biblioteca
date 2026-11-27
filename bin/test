@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Corre las pruebas de caracterización contra la aplicación levantada en modo test.
+# Las opciones de "docker compose run" van como argumentos: bin/test --build
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+exec docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm "$@" tests
