@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reservas - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Reservas</h2>
+<h3>Reservas vigentes</h3>
+<table>
+<tr>
+<th>Libro</th>
+<th>Socio</th>
+<th>Reservado el</th>
+<th>Estado</th>
+<th>Ejemplar</th>
+<th>Acciones</th>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=6">Cantos de vida y esperanza</a>
+</td>
+<td>Camila Ríos Duque</td>
+<td>05/11/2026 11:00</td>
+<td>Asignada</td>
+<td>BIB-0011</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="3">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=9">Emma</a>
+</td>
+<td>Sebastián Vargas León</td>
+<td>03/11/2026 10:20</td>
+<td>Asignada</td>
+<td>BIB-0016</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="4">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=9">Emma</a>
+</td>
+<td>Paula Jiménez Arango</td>
+<td>14/11/2026 15:05</td>
+<td>Pendiente</td>
+<td>-</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="5">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=9">Emma</a>
+</td>
+<td>Mateo Salazar Gil</td>
+<td>16/11/2026 10:30</td>
+<td>Pendiente</td>
+<td>-</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="6">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=4">Misericordia</a>
+</td>
+<td>Sofía Martínez Vega</td>
+<td>10/11/2026 09:15</td>
+<td>Pendiente</td>
+<td>-</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="1">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>
+<a href="reservas.php?libro_id=4">Misericordia</a>
+</td>
+<td>Andrés Ramírez Soto</td>
+<td>12/11/2026 16:40</td>
+<td>Pendiente</td>
+<td>-</td>
+<td>
+<form class="en-linea" method="post" action="reservas.php" onsubmit="return confirm('¿Cancelar esta reserva?');">
+<input type="hidden" name="accion" value="cancelar">
+<input type="hidden" name="reserva_id" value="2">
+<button type="submit" class="peligro">Cancelar</button>
+</form>
+</td>
+</tr>
+</table>
+<h3>Nueva reserva</h3>
+<form class="formulario" method="post" action="reservas.php">
+<input type="hidden" name="accion" value="crear">
+<p>
+<label for="socio_id">Socio</label>
+<select id="socio_id" name="socio_id">
+<option value="">Elige un socio</option>
+<option value="4">Andrés Ramírez Soto</option>
+<option value="9">Camila Ríos Duque</option>
+<option value="2">Carlos Pérez Mejía</option>
+<option value="8">Diego Castillo Mora</option>
+<option value="3">Lucía Fernández Ortiz</option>
+<option value="1">Marta Gómez Rincón</option>
+<option value="12">Mateo Salazar Gil</option>
+<option value="11">Paula Jiménez Arango</option>
+<option value="10">Sebastián Vargas León</option>
+<option value="5">Sofía Martínez Vega</option>
+<option value="7">Valentina Torres Ruiz</option>
+</select>
+</p>
+<p>
+<label for="libro_id">Libro</label>
+<select id="libro_id" name="libro_id">
+<option value="">Elige un libro</option>
+<option value="5">Azul… - Rubén Darío</option>
+<option value="6">Cantos de vida y esperanza - Rubén Darío</option>
+<option value="15">Cumandá - Juan León Mera</option>
+<option value="1">Don Quijote de la Mancha - Miguel de Cervantes</option>
+<option value="9">Emma - Jane Austen</option>
+<option value="3">Fortunata y Jacinta - Benito Pérez Galdós</option>
+<option value="10">La Regenta - Leopoldo Alas «Clarín»</option>
+<option value="14">La vorágine - José Eustasio Rivera</option>
+<option value="7">María - Jorge Isaacs</option>
+<option value="12">Marianela - Benito Pérez Galdós</option>
+<option value="4">Misericordia - Benito Pérez Galdós</option>
+<option value="2">Novelas ejemplares - Miguel de Cervantes</option>
+<option value="8">Orgullo y prejuicio - Jane Austen</option>
+<option value="13">Pepita Jiménez - Juan Valera</option>
+<option value="11">Rimas y leyendas - Gustavo Adolfo Bécquer</option>
+</select>
+</p>
+<p class="pequeno">Solo se puede reservar un libro cuando no tiene ejemplares disponibles.</p>
+<p>
+<input type="submit" value="Reservar">
+</p>
+</form>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

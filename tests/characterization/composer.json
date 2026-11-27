@@ -1,0 +1,27 @@
+{
+    "name": "biblioteca/characterization-tests",
+    "description": "Characterization tests that drive the legacy library app over HTTP",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.4",
+        "ext-dom": "*",
+        "ext-pdo": "*",
+        "guzzlehttp/guzzle": "^7.0",
+        "phpunit/phpunit": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Library\\Characterization\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Library\\Characterization\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}

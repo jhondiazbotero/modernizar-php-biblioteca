@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prestar un libro - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Prestar un libro</h2>
+<form class="formulario" method="post" action="prestar.php">
+<p>
+<label for="socio_id">Socio</label>
+<select id="socio_id" name="socio_id">
+<option value="">Elige un socio</option>
+<option value="4">Andrés Ramírez Soto (1001001004)</option>
+<option value="9">Camila Ríos Duque (1001001009)</option>
+<option value="2">Carlos Pérez Mejía (1001001002)</option>
+<option value="8">Diego Castillo Mora (1001001008)</option>
+<option value="6">Julián Herrera Cano (1001001006) - inactivo</option>
+<option value="3">Lucía Fernández Ortiz (1001001003)</option>
+<option value="1">Marta Gómez Rincón (1001001001)</option>
+<option value="12">Mateo Salazar Gil (1001001012)</option>
+<option value="11">Paula Jiménez Arango (1001001011)</option>
+<option value="10">Sebastián Vargas León (1001001010)</option>
+<option value="5">Sofía Martínez Vega (1001001005)</option>
+<option value="7">Valentina Torres Ruiz (1001001007)</option>
+</select>
+</p>
+<p>
+<label for="ejemplar_id">Ejemplar</label>
+<select id="ejemplar_id" name="ejemplar_id">
+<option value="">Elige un ejemplar</option>
+<option value="9">Azul… - BIB-0009 (prestado)</option>
+<option value="10">Azul… - BIB-0010 (disponible)</option>
+<option value="11">Cantos de vida y esperanza - BIB-0011 (reservado)</option>
+<option value="1">Don Quijote de la Mancha - BIB-0001 (prestado)</option>
+<option value="2">Don Quijote de la Mancha - BIB-0002 (disponible)</option>
+<option value="3">Don Quijote de la Mancha - BIB-0003 (disponible)</option>
+<option value="16">Emma - BIB-0016 (reservado)</option>
+<option value="6">Fortunata y Jacinta - BIB-0006 (prestado)</option>
+<option value="7">Fortunata y Jacinta - BIB-0007 (disponible)</option>
+<option value="17">La Regenta - BIB-0017 (prestado)</option>
+<option value="18">La Regenta - BIB-0018 (disponible)</option>
+<option value="23">La vorágine - BIB-0023 (prestado)</option>
+<option value="24">La vorágine - BIB-0024 (disponible)</option>
+<option value="12">María - BIB-0012 (prestado)</option>
+<option value="13">María - BIB-0013 (disponible)</option>
+<option value="21">Marianela - BIB-0021 (disponible)</option>
+<option value="8">Misericordia - BIB-0008 (prestado)</option>
+<option value="4">Novelas ejemplares - BIB-0004 (prestado)</option>
+<option value="5">Novelas ejemplares - BIB-0005 (disponible)</option>
+<option value="14">Orgullo y prejuicio - BIB-0014 (prestado)</option>
+<option value="15">Orgullo y prejuicio - BIB-0015 (disponible)</option>
+<option value="22">Pepita Jiménez - BIB-0022 (disponible)</option>
+<option value="19">Rimas y leyendas - BIB-0019 (prestado)</option>
+<option value="20">Rimas y leyendas - BIB-0020 (disponible)</option>
+</select>
+</p>
+<p class="pequeno">El préstamo dura 14 días. Cada socio puede tener hasta 3 préstamos activos.</p>
+<p>
+<input type="submit" value="Registrar préstamo">
+</p>
+</form>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

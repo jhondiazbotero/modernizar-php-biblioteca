@@ -1,0 +1,230 @@
+body {
+    margin: 0;
+    background: #f4f1ea;
+    color: #2b2b2b;
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+#cabecera {
+    background: #3d4f5c;
+    color: #fff;
+    padding: 10px 24px 0 24px;
+}
+
+#cabecera h1 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    font-weight: normal;
+}
+
+#menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+}
+
+#menu li {
+    float: left;
+}
+
+#menu li.salir {
+    float: right;
+}
+
+#menu a {
+    display: block;
+    padding: 9px 14px;
+    color: #e8eef2;
+    text-decoration: none;
+}
+
+#menu a:hover {
+    background: #566b7a;
+    color: #fff;
+}
+
+#contenido {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 24px 30px 24px;
+}
+
+#pie {
+    border-top: 1px solid #d6d0c2;
+    padding: 12px 24px;
+    text-align: center;
+    color: #7a7468;
+    font-size: 13px;
+}
+
+h2 {
+    margin: 4px 0 14px 0;
+    font-size: 22px;
+    font-weight: normal;
+    color: #3d4f5c;
+}
+
+h3 {
+    margin: 22px 0 8px 0;
+    font-size: 17px;
+    font-weight: normal;
+    color: #3d4f5c;
+}
+
+a {
+    color: #2a6f97;
+}
+
+.mensaje {
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border-radius: 3px;
+}
+
+.mensaje.ok {
+    background: #e3f3e3;
+    border: 1px solid #9fcf9f;
+    color: #1f5e1f;
+}
+
+.mensaje.error {
+    background: #fbe6e6;
+    border: 1px solid #e0a3a3;
+    color: #8a1f1f;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 14px;
+}
+
+th, td {
+    border: 1px solid #ddd8cb;
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background: #ebe7dc;
+    font-weight: 600;
+    color: #3d4f5c;
+}
+
+tr:nth-child(even) td {
+    background: #faf8f3;
+}
+
+td.num, th.num {
+    text-align: right;
+}
+
+.barra {
+    margin-bottom: 14px;
+}
+
+.barra a, a.boton, button, input[type=submit] {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #3d4f5c;
+    color: #fff;
+    border: 1px solid #2f3e48;
+    border-radius: 3px;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.barra a:hover, a.boton:hover, button:hover, input[type=submit]:hover {
+    background: #566b7a;
+}
+
+.barra a.activo {
+    background: #8a6d3b;
+    border-color: #6f5730;
+}
+
+form.formulario {
+    background: #fff;
+    border: 1px solid #ddd8cb;
+    padding: 14px 18px;
+    max-width: 560px;
+    margin-bottom: 18px;
+}
+
+form.formulario p {
+    margin: 0 0 12px 0;
+}
+
+form.formulario label {
+    display: block;
+    margin-bottom: 3px;
+    color: #4a4a4a;
+}
+
+input[type=text], input[type=password], input[type=email], input[type=number], select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border: 1px solid #c9c3b3;
+    border-radius: 3px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+form.en-linea {
+    display: inline;
+    margin: 0;
+}
+
+form.en-linea button {
+    padding: 3px 10px;
+    font-size: 13px;
+}
+
+button.peligro {
+    background: #9b3a3a;
+    border-color: #7a2c2c;
+}
+
+.tarjetas {
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.tarjeta {
+    float: left;
+    width: 31%;
+    margin-right: 2%;
+    background: #fff;
+    border: 1px solid #ddd8cb;
+    padding: 12px 16px;
+    box-sizing: border-box;
+}
+
+.tarjeta .cifra {
+    font-size: 32px;
+    color: #3d4f5c;
+}
+
+.tarjeta.alerta .cifra {
+    color: #a33a3a;
+}
+
+.vencido {
+    color: #a33a3a;
+}
+
+.inactivo {
+    color: #8a8478;
+}
+
+.pequeno {
+    color: #7a7468;
+    font-size: 13px;
+}

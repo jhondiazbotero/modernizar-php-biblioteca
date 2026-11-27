@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ejemplares de Don Quijote de la Mancha - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Ejemplares: Don Quijote de la Mancha</h2>
+<p>Miguel de Cervantes &middot; <a href="libros.php">Volver a libros</a>
+</p>
+<table>
+<tr>
+<th>Código</th>
+<th>Estado</th>
+<th>Acciones</th>
+</tr>
+<tr>
+<td>BIB-0001</td>
+<td>Prestado</td>
+<td> - </td>
+</tr>
+<tr>
+<td>BIB-0002</td>
+<td>Disponible</td>
+<td>
+<form class="en-linea" method="post" action="ejemplares.php" onsubmit="return confirm('¿Dar de baja este ejemplar?');">
+<input type="hidden" name="accion" value="baja">
+<input type="hidden" name="libro_id" value="1">
+<input type="hidden" name="ejemplar_id" value="2">
+<button type="submit" class="peligro">Dar de baja</button>
+</form>
+</td>
+</tr>
+<tr>
+<td>BIB-0003</td>
+<td>Disponible</td>
+<td>
+<form class="en-linea" method="post" action="ejemplares.php" onsubmit="return confirm('¿Dar de baja este ejemplar?');">
+<input type="hidden" name="accion" value="baja">
+<input type="hidden" name="libro_id" value="1">
+<input type="hidden" name="ejemplar_id" value="3">
+<button type="submit" class="peligro">Dar de baja</button>
+</form>
+</td>
+</tr>
+</table>
+<h3>Agregar ejemplar</h3>
+<form class="formulario" method="post" action="ejemplares.php">
+<input type="hidden" name="accion" value="alta">
+<input type="hidden" name="libro_id" value="1">
+<p>
+<label for="codigo">Código del ejemplar</label>
+<input type="text" id="codigo" name="codigo">
+</p>
+<p>
+<input type="submit" value="Agregar">
+</p>
+</form>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

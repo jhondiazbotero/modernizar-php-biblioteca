@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Nuevo socio - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Nuevo socio</h2>
+<form class="formulario" method="post" action="socio_editar.php">
+<input type="hidden" name="id" value="0">
+<p>
+<label for="documento">Documento</label>
+<input type="text" id="documento" name="documento" value="">
+</p>
+<p>
+<label for="nombre">Nombre completo</label>
+<input type="text" id="nombre" name="nombre" value="">
+</p>
+<p>
+<label for="correo">Correo electrónico</label>
+<input type="text" id="correo" name="correo" value="">
+</p>
+<p>
+<label for="telefono">Teléfono</label>
+<input type="text" id="telefono" name="telefono" value="">
+</p>
+<p>
+<label>
+<input type="checkbox" name="activo" value="1" checked> Socio activo</label>
+</p>
+<p>
+<input type="submit" value="Guardar">
+<a href="socios.php">Cancelar</a>
+</p>
+</form>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>
