@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Socio Valentina Torres Ruiz - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Valentina Torres Ruiz</h2>
+<table>
+<tr>
+<th>Documento</th>
+<td>1001001007</td>
+<th>Correo</th>
+<td>valentina.torres@example.com</td>
+</tr>
+<tr>
+<th>Teléfono</th>
+<td>3001110007</td>
+<th>Estado</th>
+<td>Activo (socio desde el 30/08/2025)</td>
+</tr>
+</table>
+<div class="barra">
+<a href="socio_editar.php?id=7">Editar socio</a>
+</div>
+<h3>Préstamos</h3>
+<table>
+<tr>
+<th>Libro</th>
+<th>Ejemplar</th>
+<th>Prestado</th>
+<th>Vence</th>
+<th>Devuelto</th>
+<th class="num">Multa</th>
+</tr>
+<tr>
+<td>Don Quijote de la Mancha</td>
+<td>BIB-0003</td>
+<td>01/09/2026</td>
+<td>15/09/2026</td>
+<td>21/09/2026</td>
+<td class="num"> $ 3.000 (pendiente) </td>
+</tr>
+</table>
+<h3>Multas</h3>
+<p>Multas pendientes de pago: <strong>$ 3.000</strong>. <a href="multas.php">Ir a multas</a>
+</p>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

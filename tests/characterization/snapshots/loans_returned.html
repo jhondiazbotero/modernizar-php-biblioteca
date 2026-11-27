@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Préstamos - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Préstamos</h2>
+<div class="barra">
+<a href="prestamos.php?filtro=activos">Activos</a>
+<a href="prestamos.php?filtro=vencidos">Vencidos</a>
+<a href="prestamos.php?filtro=devueltos" class="activo">Devueltos</a>
+<a href="prestar.php">Nuevo préstamo</a>
+</div>
+<table>
+<tr>
+<th>Socio</th>
+<th>Libro</th>
+<th>Ejemplar</th>
+<th>Prestado</th>
+<th>Vence</th>
+<th>Devuelto</th>
+<th class="num">Multa</th>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=2">Carlos Pérez Mejía</a>
+</td>
+<td>Pepita Jiménez</td>
+<td>BIB-0022</td>
+<td>01/10/2026</td>
+<td>15/10/2026</td>
+<td>13/10/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=9">Camila Ríos Duque</a>
+</td>
+<td>La Regenta</td>
+<td>BIB-0018</td>
+<td>12/09/2026</td>
+<td>26/09/2026</td>
+<td>26/09/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=7">Valentina Torres Ruiz</a>
+</td>
+<td>Don Quijote de la Mancha</td>
+<td>BIB-0003</td>
+<td>01/09/2026</td>
+<td>15/09/2026</td>
+<td>21/09/2026</td>
+<td class="num">$ 3.000</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=12">Mateo Salazar Gil</a>
+</td>
+<td>Marianela</td>
+<td>BIB-0021</td>
+<td>10/08/2026</td>
+<td>24/08/2026</td>
+<td>30/08/2026</td>
+<td class="num">$ 3.000</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=5">Sofía Martínez Vega</a>
+</td>
+<td>Orgullo y prejuicio</td>
+<td>BIB-0015</td>
+<td>06/07/2026</td>
+<td>20/07/2026</td>
+<td>18/07/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=10">Sebastián Vargas León</a>
+</td>
+<td>Azul…</td>
+<td>BIB-0010</td>
+<td>01/06/2026</td>
+<td>15/06/2026</td>
+<td>15/06/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=9">Camila Ríos Duque</a>
+</td>
+<td>Fortunata y Jacinta</td>
+<td>BIB-0007</td>
+<td>04/05/2026</td>
+<td>18/05/2026</td>
+<td>22/05/2026</td>
+<td class="num">$ 2.000</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=4">Andrés Ramírez Soto</a>
+</td>
+<td>Novelas ejemplares</td>
+<td>BIB-0005</td>
+<td>14/03/2026</td>
+<td>28/03/2026</td>
+<td>03/04/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=1">Marta Gómez Rincón</a>
+</td>
+<td>Don Quijote de la Mancha</td>
+<td>BIB-0002</td>
+<td>02/03/2026</td>
+<td>16/03/2026</td>
+<td>14/03/2026</td>
+<td class="num">-</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=6">Julián Herrera Cano</a>
+</td>
+<td>María</td>
+<td>BIB-0013</td>
+<td>02/02/2026</td>
+<td>16/02/2026</td>
+<td>10/02/2026</td>
+<td class="num">-</td>
+</tr>
+</table>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Inicio - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Tablero</h2>
+<div class="tarjetas">
+<div class="tarjeta">
+<div class="cifra">10</div> Préstamos activos </div>
+<div class="tarjeta alerta">
+<div class="cifra">4</div> Préstamos vencidos </div>
+<div class="tarjeta">
+<div class="cifra">4</div> Reservas pendientes </div>
+</div>
+<h3>Préstamos vencidos</h3>
+<table>
+<tr>
+<th>Socio</th>
+<th>Libro</th>
+<th>Ejemplar</th>
+<th>Vencía</th>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=8">Diego Castillo Mora</a>
+</td>
+<td>Azul…</td>
+<td>BIB-0009</td>
+<td class="vencido">09/11/2026</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=11">Paula Jiménez Arango</a>
+</td>
+<td>Rimas y leyendas</td>
+<td>BIB-0019</td>
+<td class="vencido">16/11/2026</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=2">Carlos Pérez Mejía</a>
+</td>
+<td>Misericordia</td>
+<td>BIB-0008</td>
+<td class="vencido">23/11/2026</td>
+</tr>
+<tr>
+<td>
+<a href="socio_ver.php?id=1">Marta Gómez Rincón</a>
+</td>
+<td>Don Quijote de la Mancha</td>
+<td>BIB-0001</td>
+<td class="vencido">30/11/2026</td>
+</tr>
+</table>
+<h3>Reservas pendientes</h3>
+<table>
+<tr>
+<th>Socio</th>
+<th>Libro</th>
+<th>Reservado el</th>
+</tr>
+<tr>
+<td>Sofía Martínez Vega</td>
+<td>
+<a href="reservas.php?libro_id=4">Misericordia</a>
+</td>
+<td>10/11/2026 09:15</td>
+</tr>
+<tr>
+<td>Andrés Ramírez Soto</td>
+<td>
+<a href="reservas.php?libro_id=4">Misericordia</a>
+</td>
+<td>12/11/2026 16:40</td>
+</tr>
+<tr>
+<td>Paula Jiménez Arango</td>
+<td>
+<a href="reservas.php?libro_id=9">Emma</a>
+</td>
+<td>14/11/2026 15:05</td>
+</tr>
+<tr>
+<td>Mateo Salazar Gil</td>
+<td>
+<a href="reservas.php?libro_id=9">Emma</a>
+</td>
+<td>16/11/2026 10:30</td>
+</tr>
+</table>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Libros - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Libros</h2>
+<div class="barra">
+<a href="libro_editar.php">Nuevo libro</a>
+</div>
+<table>
+<tr>
+<th>Título</th>
+<th>Autor</th>
+<th>Año</th>
+<th>ISBN</th>
+<th class="num">Ejemplares</th>
+<th class="num">Disponibles</th>
+<th>Acciones</th>
+</tr>
+<tr>
+<td>Azul…</td>
+<td>Rubén Darío</td>
+<td>1888</td>
+<td>978-0-0000-0005-5</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=5">Editar</a> | <a href="ejemplares.php?libro_id=5">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Cantos de vida y esperanza</td>
+<td>Rubén Darío</td>
+<td>1905</td>
+<td>978-0-0000-0006-6</td>
+<td class="num">1</td>
+<td class="num">0</td>
+<td>
+<a href="libro_editar.php?id=6">Editar</a> | <a href="ejemplares.php?libro_id=6">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Cumandá</td>
+<td>Juan León Mera</td>
+<td>1879</td>
+<td>978-0-0000-0015-5</td>
+<td class="num">0</td>
+<td class="num">0</td>
+<td>
+<a href="libro_editar.php?id=15">Editar</a> | <a href="ejemplares.php?libro_id=15">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Don Quijote de la Mancha</td>
+<td>Miguel de Cervantes</td>
+<td>1605</td>
+<td>978-0-0000-0001-1</td>
+<td class="num">3</td>
+<td class="num">2</td>
+<td>
+<a href="libro_editar.php?id=1">Editar</a> | <a href="ejemplares.php?libro_id=1">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Emma</td>
+<td>Jane Austen</td>
+<td>1815</td>
+<td>978-0-0000-0009-9</td>
+<td class="num">1</td>
+<td class="num">0</td>
+<td>
+<a href="libro_editar.php?id=9">Editar</a> | <a href="ejemplares.php?libro_id=9">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Fortunata y Jacinta</td>
+<td>Benito Pérez Galdós</td>
+<td>1887</td>
+<td>978-0-0000-0003-3</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=3">Editar</a> | <a href="ejemplares.php?libro_id=3">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>La Regenta</td>
+<td>Leopoldo Alas «Clarín»</td>
+<td>1885</td>
+<td>978-0-0000-0010-0</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=10">Editar</a> | <a href="ejemplares.php?libro_id=10">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>La vorágine</td>
+<td>José Eustasio Rivera</td>
+<td>1924</td>
+<td>978-0-0000-0014-4</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=14">Editar</a> | <a href="ejemplares.php?libro_id=14">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>María</td>
+<td>Jorge Isaacs</td>
+<td>1867</td>
+<td>978-0-0000-0007-7</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=7">Editar</a> | <a href="ejemplares.php?libro_id=7">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Marianela</td>
+<td>Benito Pérez Galdós</td>
+<td>1878</td>
+<td>978-0-0000-0012-2</td>
+<td class="num">1</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=12">Editar</a> | <a href="ejemplares.php?libro_id=12">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Misericordia</td>
+<td>Benito Pérez Galdós</td>
+<td>1897</td>
+<td>978-0-0000-0004-4</td>
+<td class="num">1</td>
+<td class="num">0</td>
+<td>
+<a href="libro_editar.php?id=4">Editar</a> | <a href="ejemplares.php?libro_id=4">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Novelas ejemplares</td>
+<td>Miguel de Cervantes</td>
+<td>1613</td>
+<td>978-0-0000-0002-2</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=2">Editar</a> | <a href="ejemplares.php?libro_id=2">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Orgullo y prejuicio</td>
+<td>Jane Austen</td>
+<td>1813</td>
+<td>978-0-0000-0008-8</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=8">Editar</a> | <a href="ejemplares.php?libro_id=8">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Pepita Jiménez</td>
+<td>Juan Valera</td>
+<td>1874</td>
+<td>978-0-0000-0013-3</td>
+<td class="num">1</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=13">Editar</a> | <a href="ejemplares.php?libro_id=13">Ejemplares</a>
+</td>
+</tr>
+<tr>
+<td>Rimas y leyendas</td>
+<td>Gustavo Adolfo Bécquer</td>
+<td>1871</td>
+<td>978-0-0000-0011-1</td>
+<td class="num">2</td>
+<td class="num">1</td>
+<td>
+<a href="libro_editar.php?id=11">Editar</a> | <a href="ejemplares.php?libro_id=11">Ejemplares</a>
+</td>
+</tr>
+</table>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

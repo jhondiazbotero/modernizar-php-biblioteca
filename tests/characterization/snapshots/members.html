@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Socios - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Socios</h2>
+<div class="barra">
+<a href="socio_editar.php">Nuevo socio</a>
+</div>
+<table>
+<tr>
+<th>Documento</th>
+<th>Nombre</th>
+<th>Correo</th>
+<th>Teléfono</th>
+<th>Alta</th>
+<th>Estado</th>
+<th>Acciones</th>
+</tr>
+<tr>
+<td>1001001001</td>
+<td>Marta Gómez Rincón</td>
+<td>marta.gomez@example.com</td>
+<td>3001110001</td>
+<td>10/02/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=1">Ver</a> | <a href="socio_editar.php?id=1">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001002</td>
+<td>Carlos Pérez Mejía</td>
+<td>carlos.perez@example.com</td>
+<td>3001110002</td>
+<td>04/03/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=2">Ver</a> | <a href="socio_editar.php?id=2">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001003</td>
+<td>Lucía Fernández Ortiz</td>
+<td>lucia.fernandez@example.com</td>
+<td>3001110003</td>
+<td>21/04/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=3">Ver</a> | <a href="socio_editar.php?id=3">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001004</td>
+<td>Andrés Ramírez Soto</td>
+<td>andres.ramirez@example.com</td>
+<td>3001110004</td>
+<td>15/06/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=4">Ver</a> | <a href="socio_editar.php?id=4">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001005</td>
+<td>Sofía Martínez Vega</td>
+<td>sofia.martinez@example.com</td>
+<td>3001110005</td>
+<td>02/07/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=5">Ver</a> | <a href="socio_editar.php?id=5">Editar</a>
+</td>
+</tr>
+<tr class="inactivo">
+<td>1001001006</td>
+<td>Julián Herrera Cano</td>
+<td>julian.herrera@example.com</td>
+<td>3001110006</td>
+<td>19/11/2024</td>
+<td>Inactivo</td>
+<td>
+<a href="socio_ver.php?id=6">Ver</a> | <a href="socio_editar.php?id=6">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001007</td>
+<td>Valentina Torres Ruiz</td>
+<td>valentina.torres@example.com</td>
+<td>3001110007</td>
+<td>30/08/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=7">Ver</a> | <a href="socio_editar.php?id=7">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001008</td>
+<td>Diego Castillo Mora</td>
+<td>diego.castillo@example.com</td>
+<td>3001110008</td>
+<td>12/09/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=8">Ver</a> | <a href="socio_editar.php?id=8">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001009</td>
+<td>Camila Ríos Duque</td>
+<td>camila.rios@example.com</td>
+<td>3001110009</td>
+<td>05/10/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=9">Ver</a> | <a href="socio_editar.php?id=9">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001010</td>
+<td>Sebastián Vargas León</td>
+<td>sebastian.vargas@example.com</td>
+<td>3001110010</td>
+<td>18/11/2025</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=10">Ver</a> | <a href="socio_editar.php?id=10">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001011</td>
+<td>Paula Jiménez Arango</td>
+<td>paula.jimenez@example.com</td>
+<td>3001110011</td>
+<td>14/01/2026</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=11">Ver</a> | <a href="socio_editar.php?id=11">Editar</a>
+</td>
+</tr>
+<tr>
+<td>1001001012</td>
+<td>Mateo Salazar Gil</td>
+<td>mateo.salazar@example.com</td>
+<td>3001110012</td>
+<td>03/02/2026</td>
+<td>Activo</td>
+<td>
+<a href="socio_ver.php?id=12">Ver</a> | <a href="socio_editar.php?id=12">Editar</a>
+</td>
+</tr>
+</table>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>
