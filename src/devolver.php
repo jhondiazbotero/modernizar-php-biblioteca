@@ -23,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hoy = hoy();
 
     // multa: $500 por cada día de retraso
-    $dias = (int)date('j', strtotime(hoy())) - (int)date('j', strtotime($p['fecha_vence']));
-    if ($dias < 0) {
-        $dias = 0;
+    $multa = 0;
+    if (strtotime($hoy) > strtotime($p['fecha_vence'])) {
+        $dias = (int)date('j', strtotime($hoy)) - (int)date('j', strtotime($p['fecha_vence']));
+        if ($dias < 0) {
+            $dias = 0;
+        }
+        $multa = $dias * 500;
     }
-    $multa = $dias * 500;
 
     mysqli_query($con, "UPDATE prestamos SET fecha_devolucion = '$hoy', multa = $multa WHERE id = $prestamo_id");
 
