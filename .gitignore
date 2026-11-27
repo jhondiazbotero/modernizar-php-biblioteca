@@ -1,0 +1,6 @@
+.env
+/vendor/
+.phpunit.cache/
+.taste-skill/
+.impeccable/
+*.png.tmp
