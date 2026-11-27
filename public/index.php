@@ -18,7 +18,7 @@ if ($frontFile === null) {
     return;
 }
 
-// The legacy screens include 'includes/...' relative to their own directory.
+// Same working directory the screens had when Apache ran them directly.
 chdir(dirname($frontFile));
 
 try {
