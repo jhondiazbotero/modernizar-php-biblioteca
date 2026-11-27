@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Library\Http;
+
+/**
+ * Maps a requested URL path to one of the legacy screens.
+ *
+ * Only paths listed in SCREENS resolve. Nothing taken from the request is ever
+ * used to build a file name, so "/../", "/includes/..." or "/legacy/..." can
+ * not reach anything outside the list.
+ */
+final class LegacyRouter
+{
+    /** URL path => file inside the legacy directory. */
+    private const SCREENS = [
+        '/' => 'index.php',
+        '/index.php' => 'index.php',
+        '/login.php' => 'login.php',
+        '/logout.php' => 'logout.php',
+        '/socios.php' => 'socios.php',
+        '/socio_editar.php' => 'socio_editar.php',
+        '/socio_ver.php' => 'socio_ver.php',
+        '/libros.php' => 'libros.php',
+        '/libro_editar.php' => 'libro_editar.php',
+        '/ejemplares.php' => 'ejemplares.php',
+        '/prestar.php' => 'prestar.php',
+        '/devolver.php' => 'devolver.php',
+        '/prestamos.php' => 'prestamos.php',
+        '/reservas.php' => 'reservas.php',
+        '/multas.php' => 'multas.php',
+        '/buscar.php' => 'buscar.php',
+    ];
+
+    /** @var string */
+    private $legacyDir;
+
+    public function __construct(string $legacyDir)
+    {
+        $this->legacyDir = rtrim($legacyDir, '/');
+    }
+
+    /** Absolute path of the legacy file for the requested path, or null when it is not a known screen. */
+    public function resolve(?string $path): ?string
+    {
+        if ($path === null || !isset(self::SCREENS[$path])) {
+            return null;
+        }
+
+        return $this->legacyDir . '/' . self::SCREENS[$path];
+    }
+}

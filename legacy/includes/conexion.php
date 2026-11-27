@@ -7,7 +7,8 @@ if (session_id() == '') {
     session_start();
 }
 
-$con = mysqli_connect(getenv('DB_HOST'), getenv('DB_USER'), getenv('DB_PASSWORD'), getenv('DB_NAME'));
+$config_bd = \Library\Config\DatabaseConfig::fromEnvironment();
+$con = mysqli_connect($config_bd->getHost(), $config_bd->getUser(), $config_bd->getPassword(), $config_bd->getName());
 if (!$con) {
     die('No se pudo conectar con la base de datos: ' . mysqli_connect_error());
 }

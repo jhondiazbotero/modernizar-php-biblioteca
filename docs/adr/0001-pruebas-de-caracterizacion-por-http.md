@@ -4,11 +4,11 @@ Estado: aceptada
 
 ## Contexto
 
-La aplicación heredada no tiene pruebas y se va a modernizar por fases: Composer, PDO, capas, PHP 8.4. En cada fase cambia el código por dentro, pero lo que ve el usuario no debe cambiar. Unas pruebas unitarias escritas hoy contra `src/` se romperían con la primera reorganización y no dirían nada sobre las pantallas.
+La aplicación heredada no tiene pruebas y se va a modernizar por fases: Composer, PDO, capas, PHP 8.4. En cada fase cambia el código por dentro, pero lo que ve el usuario no debe cambiar. Unas pruebas unitarias escritas hoy contra el código heredado se romperían con la primera reorganización y no dirían nada sobre las pantallas.
 
 ## Decisión
 
-- Las pruebas **solo entran por HTTP** y miran **la base de datos**. No incluyen ni leen nada de `src/`.
+- Las pruebas **solo entran por HTTP** y miran **la base de datos**. No incluyen ni leen nada del código de la aplicación (`legacy/` y `src/`).
 - Corren en un **contenedor aparte con PHP 8.4** (PHPUnit 12 y Guzzle), contra la aplicación levantada con Compose. Así el mismo código de pruebas sirve con PHP 7.4 hoy y con PHP 8.4 al final, y no depende de la versión que se esté modernizando.
 - Dos tipos de prueba, juntos:
   - **Snapshots** del HTML normalizado de cada pantalla (se quitan comentarios y se colapsan espacios, nada más). Detectan cualquier cambio visible.
