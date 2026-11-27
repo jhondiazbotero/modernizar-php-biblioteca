@@ -13,6 +13,11 @@ COPY composer.json composer.lock ./
 RUN composer install --no-interaction --no-progress --no-scripts --no-autoloader
 
 COPY . .
-RUN composer dump-autoload --no-interaction --optimize
+RUN composer dump-autoload --no-interaction --optimize \
+    && mkdir -p .phpunit.cache \
+    && chmod 777 .phpunit.cache
+
+# The container runs as the host user (see docker-compose.test.yml): HOME must be writable.
+ENV HOME=/tmp
 
 CMD ["vendor/bin/phpunit"]
