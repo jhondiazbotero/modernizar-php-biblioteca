@@ -8,6 +8,15 @@ permissions:
   contents: read
 
 jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pruebas unitarias
+        run: bin/unit
+
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -16,8 +25,8 @@ jobs:
 
       - name: Sintaxis de todos los PHP
         run: |
-          docker run --rm -v "$PWD/src:/app:ro" -w /app php:7.4.33-apache \
-            sh -c 'find . -name "*.php" -print0 | xargs -0 -n1 php -l'
+          docker run --rm -v "$PWD:/app:ro" -w /app php:7.4.33-apache \
+            sh -c 'find public legacy src -name "*.php" -print0 | xargs -0 -n1 php -l'
 
       - name: Preparar variables de entorno
         run: |
@@ -32,6 +41,14 @@ jobs:
           codigo=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8090/login.php)
           echo "login.php: $codigo"
           test "$codigo" = "200"
+
+      - name: Los archivos internos no se sirven
+        run: |
+          for ruta in /legacy/socios.php /includes/conexion.php; do
+            codigo=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8090$ruta")
+            echo "$ruta: $codigo"
+            test "$codigo" = "404"
+          done
 
       - name: Tablero sin sesión redirige
         run: |
