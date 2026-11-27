@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sintaxis de todos los PHP
+        run: |
+          docker run --rm -v "$PWD/src:/app:ro" -w /app php:7.4.33-apache \
+            sh -c 'find . -name "*.php" -print0 | xargs -0 -n1 php -l'
+
+      - name: Preparar variables de entorno
+        run: |
+          cp .env.example .env
+          sed -i 's/cambia-esto/clave-de-prueba-ci/' .env
+
+      - name: Levantar la aplicación
+        run: docker compose up -d --build --wait
+
+      - name: Pantalla de ingreso responde 200
+        run: |
+          codigo=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8090/login.php)
+          echo "login.php: $codigo"
+          test "$codigo" = "200"
+
+      - name: Tablero sin sesión redirige
+        run: |
+          codigo=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8090/index.php)
+          echo "index.php: $codigo"
+          test "$codigo" = "302"
+
+      - name: Registros si algo falló
+        if: failure()
+        run: docker compose logs
+
+      - name: Apagar
+        if: always()
+        run: docker compose down -v
