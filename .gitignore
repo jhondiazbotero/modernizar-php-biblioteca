@@ -4,3 +4,5 @@
 .taste-skill/
 .impeccable/
 *.png.tmp
+tests/characterization/vendor/
+tests/characterization/snapshots/_actual/

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             redirigir('reservas.php', 'El socio ya tiene una reserva pendiente de ese libro.', 'error');
         }
 
-        $ahora = hoy() . ' ' . date('H:i:s');
+        $ahora = ahora();
         mysqli_query($con, "INSERT INTO reservas (libro_id, socio_id, fecha_reserva, estado) VALUES ($libro_id, $socio_id, '$ahora', 'pendiente')");
         redirigir('reservas.php?libro_id=' . $libro_id, 'Reserva registrada para ' . $socio['nombre'] . '.');
     }

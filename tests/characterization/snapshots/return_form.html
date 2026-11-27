@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Devolver un libro - Biblioteca comunitaria</title>
+<link rel="stylesheet" type="text/css" href="css/estilo.css">
+</head>
+<body>
+<div id="cabecera">
+<h1>Biblioteca comunitaria</h1>
+<ul id="menu">
+<li>
+<a href="index.php">Inicio</a>
+</li>
+<li>
+<a href="socios.php">Socios</a>
+</li>
+<li>
+<a href="libros.php">Libros</a>
+</li>
+<li>
+<a href="prestar.php">Prestar</a>
+</li>
+<li>
+<a href="devolver.php">Devolver</a>
+</li>
+<li>
+<a href="prestamos.php">Préstamos</a>
+</li>
+<li>
+<a href="reservas.php">Reservas</a>
+</li>
+<li>
+<a href="multas.php">Multas</a>
+</li>
+<li>
+<a href="buscar.php">Buscar</a>
+</li>
+<li class="salir">
+<a href="logout.php">Salir (Administrador)</a>
+</li>
+</ul>
+</div>
+<div id="contenido">
+<h2>Devolver un libro</h2>
+<form class="formulario" method="post" action="devolver.php">
+<p>
+<label for="prestamo_id">Préstamo</label>
+<select id="prestamo_id" name="prestamo_id">
+<option value="">Elige el préstamo</option>
+<option value="5">Azul… - BIB-0009 - Diego Castillo Mora (vence 09/11/2026)</option>
+<option value="1">Don Quijote de la Mancha - BIB-0001 - Marta Gómez Rincón (vence 30/11/2026)</option>
+<option value="4">Fortunata y Jacinta - BIB-0006 - Lucía Fernández Ortiz (vence 04/12/2026)</option>
+<option value="7">La Regenta - BIB-0017 - Diego Castillo Mora (vence 07/12/2026)</option>
+<option value="10">La vorágine - BIB-0023 - Marta Gómez Rincón (vence 09/12/2026)</option>
+<option value="9">María - BIB-0012 - Mateo Salazar Gil (vence 08/12/2026)</option>
+<option value="2">Misericordia - BIB-0008 - Carlos Pérez Mejía (vence 23/11/2026)</option>
+<option value="3">Novelas ejemplares - BIB-0004 - Lucía Fernández Ortiz (vence 02/12/2026)</option>
+<option value="6">Orgullo y prejuicio - BIB-0014 - Diego Castillo Mora (vence 03/12/2026)</option>
+<option value="8">Rimas y leyendas - BIB-0019 - Paula Jiménez Arango (vence 16/11/2026)</option>
+</select>
+</p>
+<p class="pequeno">Si el libro se entrega tarde, la multa es de $ 500 por cada día de retraso.</p>
+<p>
+<input type="submit" value="Registrar devolución">
+</p>
+</form>
+</div>
+<div id="pie"> Biblioteca comunitaria &middot; Sistema de préstamos </div>
+</body>
+</html>

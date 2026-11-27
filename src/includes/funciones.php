@@ -1,10 +1,35 @@
 <?php
 // Funciones comunes de la biblioteca
 
+// Fecha y hora fijas para las pruebas: solo con APP_ENV=test y la cabecera
+// X-Fecha-Fija ('Y-m-d' o 'Y-m-d H:i:s'). Si no, devuelve null.
+function fecha_fija()
+{
+    if (getenv('APP_ENV') !== 'test' || empty($_SERVER['HTTP_X_FECHA_FIJA'])) {
+        return null;
+    }
+    $valor = $_SERVER['HTTP_X_FECHA_FIJA'];
+    foreach (array('Y-m-d H:i:s', 'Y-m-d') as $formato) {
+        $f = DateTime::createFromFormat('!' . $formato, $valor);
+        if ($f && $f->format($formato) === $valor) {
+            return array(substr($valor, 0, 10), strlen($valor) > 10 ? substr($valor, 11) : '12:00:00');
+        }
+    }
+    return null;
+}
+
 // Fecha de hoy. Todas las pantallas deben usar esta función.
 function hoy()
 {
-    return date('Y-m-d');
+    $fija = fecha_fija();
+    return $fija ? $fija[0] : date('Y-m-d');
+}
+
+// Fecha y hora de ahora (Y-m-d H:i:s)
+function ahora()
+{
+    $fija = fecha_fija();
+    return $fija ? $fija[0] . ' ' . $fija[1] : date('Y-m-d H:i:s');
 }
 
 function verificar_sesion()

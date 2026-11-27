@@ -1,0 +1,22 @@
+# Se usa junto a docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm tests
+services:
+  app:
+    environment:
+      APP_ENV: test
+
+  tests:
+    build: tests/characterization
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DEMO_PASSWORD: ${DEMO_PASSWORD}
+      APP_URL: http://app
+      UPDATE_SNAPSHOTS: ${UPDATE_SNAPSHOTS:-0}
+    volumes:
+      - ./db:/db:ro
+      - ./tests/characterization/snapshots:/app/snapshots
