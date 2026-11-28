@@ -9,9 +9,4 @@ if (session_id() == '') {
 
 $config_bd = \Library\Config\DatabaseConfig::fromEnvironment();
 $db = \Library\Database\ConnectionFactory::create($config_bd);
-$con = mysqli_connect($config_bd->getHost(), $config_bd->getUser(), $config_bd->getPassword(), $config_bd->getName());
-if (!$con) {
-    die('No se pudo conectar con la base de datos: ' . mysqli_connect_error());
-}
-mysqli_set_charset($con, 'utf8mb4');
 unset($config_bd);
