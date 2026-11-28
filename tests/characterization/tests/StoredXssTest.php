@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Library\Characterization\Tests;
 
 use Library\Characterization\CharacterizationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 final class StoredXssTest extends CharacterizationTestCase
 {
@@ -26,18 +25,19 @@ final class StoredXssTest extends CharacterizationTestCase
     }
 
     /**
-     * Current behavior (known defect F4): the member list prints the name without escaping, so the markup of the name becomes part of the page.
+     * F4 fixed: the member list prints the name escaped, so the markup of the name is text, not part of the page.
      */
-    #[Group('known-defect')]
-    public function test_f4_member_list_prints_the_name_without_escaping(): void
+    public function test_member_list_prints_the_name_escaped(): void
     {
         $this->registerMemberWithMarkupInName();
 
-        $html = $this->page($this->app->get('socios.php'));
+        $response = $this->app->get('socios.php');
+        $html = $this->page($response);
 
         self::assertSame(self::NAME, $this->db->fetchValue('SELECT nombre FROM socios WHERE documento = ?', ['3003003001']));
-        self::assertSame(1, $html->count('//td/b[text()="Ana"]'), 'The <b> tag of the name is live in the list');
-        self::assertStringContainsString('<td><b>Ana</b></td>', (string) $this->app->get('socios.php')->getBody());
+        self::assertSame(0, $html->count('//td/b'), 'The <b> tag of the name must not be live in the list');
+        self::assertStringContainsString('<td>&lt;b&gt;Ana&lt;/b&gt;</td>', (string) $response->getBody());
+        self::assertStringNotContainsString('<b>Ana</b>', (string) $response->getBody());
     }
 
     public function test_member_detail_prints_the_name_escaped(): void

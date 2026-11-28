@@ -89,26 +89,6 @@ final class RequestClockTest extends TestCase
         self::assertSame('2026-04-15', $clock->today()->format('Y-m-d'));
     }
 
-    public function test_from_globals_reads_the_server_variable_and_the_environment(): void
-    {
-        $previous = $_SERVER['HTTP_X_FECHA_FIJA'] ?? null;
-        putenv('APP_ENV=test');
-        $_SERVER['HTTP_X_FECHA_FIJA'] = '2026-05-06';
-        try {
-            self::assertSame('2026-05-06', RequestClock::fromGlobals()->today()->format('Y-m-d'));
-
-            putenv('APP_ENV=production');
-            self::assertSame($this->realToday(), RequestClock::fromGlobals()->today()->format('Y-m-d'));
-        } finally {
-            putenv('APP_ENV');
-            if ($previous === null) {
-                unset($_SERVER['HTTP_X_FECHA_FIJA']);
-            } else {
-                $_SERVER['HTTP_X_FECHA_FIJA'] = $previous;
-            }
-        }
-    }
-
     private function realToday(): string
     {
         return (new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota')))->format('Y-m-d');

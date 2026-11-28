@@ -34,18 +34,6 @@ final class RequestClock implements Clock
         }
     }
 
-    /** Reads APP_ENV and the X-Fecha-Fija header of the current request. */
-    public static function fromGlobals(): self
-    {
-        $environment = getenv('APP_ENV');
-        $headers = [];
-        if (isset($_SERVER['HTTP_X_FECHA_FIJA'])) {
-            $headers[self::HEADER] = $_SERVER['HTTP_X_FECHA_FIJA'];
-        }
-
-        return new self($environment === false ? null : $environment, $headers);
-    }
-
     public function today(): \DateTimeImmutable
     {
         $fixed = $this->fixedMoment();

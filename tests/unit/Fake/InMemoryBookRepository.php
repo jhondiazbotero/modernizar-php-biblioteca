@@ -20,4 +20,23 @@ final class InMemoryBookRepository implements BookRepository
     {
         return isset($this->store->books[$id]);
     }
+
+    public function add(string $isbn, string $title, string $author, ?int $year): int
+    {
+        $this->store->write('books.add');
+        $id = $this->store->nextBookId++;
+        $this->store->books[$id] = true;
+        $this->store->bookData[$id] = ['isbn' => $isbn, 'title' => $title, 'author' => $author, 'year' => $year];
+
+        return $id;
+    }
+
+    public function update(int $id, string $isbn, string $title, string $author, ?int $year): void
+    {
+        $this->store->write('books.update');
+        if (!isset($this->store->books[$id])) {
+            return;
+        }
+        $this->store->bookData[$id] = ['isbn' => $isbn, 'title' => $title, 'author' => $author, 'year' => $year];
+    }
 }

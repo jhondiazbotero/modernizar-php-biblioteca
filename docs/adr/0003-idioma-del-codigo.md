@@ -15,5 +15,5 @@ La aplicación heredada está escrita en español: archivos, funciones, variable
 
 ## Consecuencias
 
-- Durante la modernización conviven los dos idiomas y se nota la frontera: lo que vive en `legacy/` es español y lo que se escribe nuevo (`src/`) es inglés.
+- Durante la modernización convivieron los dos idiomas y se notaba la frontera: lo que vivía en `legacy/` (borrado en el ADR 0008) era español y lo que se escribe nuevo (`src/`, `templates/`) es inglés. Los textos que ve el usuario y los nombres de tablas, columnas, campos de formulario y URLs siguen en español.
 - Al pasar el dominio a clases nuevas (en inglés), los nombres de tablas y columnas en español se traducen en una sola capa y no se esparcen por el código.

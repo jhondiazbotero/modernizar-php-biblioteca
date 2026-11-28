@@ -17,11 +17,29 @@ final class InMemoryStore
     /** @var MemberSnapshot[] */
     public $members = [];
 
+    /** @var array<int, array<string, mixed>> document, email, phone and registration date by member id */
+    public $memberData = [];
+
+    /** @var int */
+    public $nextMemberId = 1;
+
     /** @var array<int, bool> */
     public $books = [];
 
+    /** @var array<int, array<string, mixed>> isbn, title, author and year by book id */
+    public $bookData = [];
+
+    /** @var int */
+    public $nextBookId = 1;
+
     /** @var CopySnapshot[] */
     public $copies = [];
+
+    /** @var array<int, string> code by copy id */
+    public $copyCodes = [];
+
+    /** @var int */
+    public $nextCopyId = 1;
 
     /** @var array<int, array<string, mixed>> */
     public $loans = [];
@@ -44,20 +62,31 @@ final class InMemoryStore
     /** @var string|null */
     private $failOn;
 
-    public function addMember(int $id, string $name, bool $active = true): void
+    public function addMember(int $id, string $name, bool $active = true, ?string $document = null): void
     {
         $this->members[$id] = new MemberSnapshot($id, $name, $active);
+        $this->memberData[$id] = [
+            'document' => $document ?? 'DOC-' . $id,
+            'email' => '',
+            'phone' => '',
+            'registeredOn' => new \DateTimeImmutable('2026-01-01'),
+        ];
+        $this->nextMemberId = max($this->nextMemberId, $id + 1);
     }
 
-    public function addBook(int $id): void
+    public function addBook(int $id, string $title = 'Libro', string $author = 'Autor'): void
     {
         $this->books[$id] = true;
+        $this->bookData[$id] = ['isbn' => '', 'title' => $title, 'author' => $author, 'year' => null];
+        $this->nextBookId = max($this->nextBookId, $id + 1);
     }
 
     public function addCopy(int $id, int $bookId, string $title, string $status = CopySnapshot::AVAILABLE): void
     {
         $this->books[$bookId] = true;
         $this->copies[$id] = new CopySnapshot($id, $bookId, $title, $status);
+        $this->copyCodes[$id] = 'COD-' . $id;
+        $this->nextCopyId = max($this->nextCopyId, $id + 1);
     }
 
     public function addLoan(int $id, int $copyId, int $memberId, string $dueDate, ?string $returnedOn = null, int $fine = 0, bool $paid = false): void
@@ -115,6 +144,9 @@ final class InMemoryStore
         return [
             $this->members, $this->books, $this->copies, $this->loans, $this->reservations,
             $this->nextLoanId, $this->nextReservationId, $this->writes,
+            $this->memberData, $this->nextMemberId,
+            $this->bookData, $this->nextBookId,
+            $this->copyCodes, $this->nextCopyId,
         ];
     }
 
@@ -122,6 +154,9 @@ final class InMemoryStore
     public function restore(array $state): void
     {
         [$this->members, $this->books, $this->copies, $this->loans, $this->reservations,
-            $this->nextLoanId, $this->nextReservationId, $this->writes] = $state;
+            $this->nextLoanId, $this->nextReservationId, $this->writes,
+            $this->memberData, $this->nextMemberId,
+            $this->bookData, $this->nextBookId,
+            $this->copyCodes, $this->nextCopyId] = $state;
     }
 }
