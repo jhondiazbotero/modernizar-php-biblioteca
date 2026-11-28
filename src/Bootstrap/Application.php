@@ -12,6 +12,7 @@ use Library\Database\ConnectionFactory;
 use Library\Domain\Clock;
 use Library\Http\Controller\AuthController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\MemberController;
 use Library\Http\ErrorPage;
 use Library\Http\PageRenderer;
 use Library\Http\Request;
@@ -22,6 +23,7 @@ use Library\Http\View;
 use Library\Infrastructure\Clock\RequestClock;
 use Library\Infrastructure\Persistence\PdoLibrarianRepository;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
+use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 
 /**
  * Composition root: builds, by hand, everything a request needs (connection, clock,
@@ -85,6 +87,9 @@ final class Application
         return [
             AuthController::class => function (): AuthController {
                 return new AuthController($this->pages(), new Authenticate(new PdoLibrarianRepository($this->pdo()), new PasswordVerifier()));
+            },
+            MemberController::class => function () use ($request): MemberController {
+                return new MemberController($this->pages(), new PdoMemberQuery($this->pdo()), $this->clock($request));
             },
             DashboardController::class => function () use ($request): DashboardController {
                 return new DashboardController($this->pages(), new PdoDashboardQuery($this->pdo()), $this->clock($request));

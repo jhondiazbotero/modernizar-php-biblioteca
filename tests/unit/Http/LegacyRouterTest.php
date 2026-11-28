@@ -22,8 +22,6 @@ final class LegacyRouterTest extends TestCase
         'prestar.php',
         'reservas.php',
         'socio_editar.php',
-        'socio_ver.php',
-        'socios.php',
     ];
 
     /** @return array<string, array{string}> */

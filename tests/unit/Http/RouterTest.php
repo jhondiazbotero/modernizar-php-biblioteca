@@ -6,6 +6,7 @@ namespace Library\Tests\Http;
 
 use Library\Http\Controller\AuthController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\MemberController;
 use Library\Http\Request;
 use Library\Http\Response;
 use Library\Http\Router;
@@ -18,6 +19,8 @@ final class RouterTest extends TestCase
     private const EXPECTED = [
         '/' => [DashboardController::class, 'show', true],
         '/index.php' => [DashboardController::class, 'show', true],
+        '/socios.php' => [MemberController::class, 'index', true],
+        '/socio_ver.php' => [MemberController::class, 'show', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];
