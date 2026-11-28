@@ -12,6 +12,7 @@ use Library\Http\Controller\FineController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 use Library\Http\Controller\ReservationController;
+use Library\Http\Controller\SearchController;
 use Library\Http\Request;
 use Library\Http\Response;
 use Library\Http\Router;
@@ -35,6 +36,7 @@ final class RouterTest extends TestCase
         '/prestamos.php' => [LoanController::class, 'index', true],
         '/reservas.php' => [ReservationController::class, 'index', true],
         '/multas.php' => [FineController::class, 'index', true],
+        '/buscar.php' => [SearchController::class, 'index', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];

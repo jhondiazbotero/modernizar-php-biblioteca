@@ -31,6 +31,7 @@ use Library\Http\Controller\FineController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 use Library\Http\Controller\ReservationController;
+use Library\Http\Controller\SearchController;
 use Library\Http\ErrorPage;
 use Library\Http\PageRenderer;
 use Library\Http\Request;
@@ -53,6 +54,7 @@ use Library\Infrastructure\Persistence\Query\PdoFineQuery;
 use Library\Infrastructure\Persistence\Query\PdoLoanQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 use Library\Infrastructure\Persistence\Query\PdoReservationQuery;
+use Library\Infrastructure\Persistence\Query\PdoSearchQuery;
 
 /**
  * Composition root: builds, by hand, everything a request needs (connection, clock,
@@ -162,6 +164,9 @@ final class Application
                     ),
                     new CancelReservation($transactions, $reservations, $copies, new ReservationQueue())
                 );
+            },
+            SearchController::class => function (): SearchController {
+                return new SearchController($this->pages(), new PdoSearchQuery($this->pdo()));
             },
             MemberController::class => function () use ($request): MemberController {
                 $clock = $this->clock($request);
