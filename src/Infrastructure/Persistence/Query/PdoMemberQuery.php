@@ -61,6 +61,21 @@ final class PdoMemberQuery implements MemberQuery
         return $loans;
     }
 
+    public function optionsForLending(): array
+    {
+        $members = [];
+        foreach ($this->pdo->query('SELECT id, nombre, documento, activo FROM socios ORDER BY nombre ASC')->fetchAll() as $row) {
+            $members[] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['nombre'],
+                'document' => (string) $row['documento'],
+                'active' => (bool) $row['activo'],
+            ];
+        }
+
+        return $members;
+    }
+
     public function unpaidFineTotal(int $memberId): float
     {
         $statement = $this->pdo->prepare('SELECT COALESCE(SUM(multa), 0) FROM prestamos WHERE socio_id = ? AND multa > 0 AND multa_pagada = 0');

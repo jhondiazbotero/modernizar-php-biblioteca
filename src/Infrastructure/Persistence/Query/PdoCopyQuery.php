@@ -16,6 +16,27 @@ final class PdoCopyQuery implements CopyQuery
         $this->pdo = $pdo;
     }
 
+    public function forLending(): array
+    {
+        $rows = $this->pdo->query("SELECT e.id, e.codigo, e.estado, l.titulo
+            FROM ejemplares e
+            JOIN libros l ON l.id = e.libro_id
+            WHERE e.estado <> 'baja'
+            ORDER BY l.titulo ASC, e.codigo ASC")->fetchAll();
+
+        $copies = [];
+        foreach ($rows as $row) {
+            $copies[] = [
+                'id' => (int) $row['id'],
+                'code' => (string) $row['codigo'],
+                'status' => (string) $row['estado'],
+                'title' => (string) $row['titulo'],
+            ];
+        }
+
+        return $copies;
+    }
+
     public function ofBook(int $bookId): array
     {
         $statement = $this->pdo->prepare('SELECT * FROM ejemplares WHERE libro_id = ? ORDER BY codigo ASC');

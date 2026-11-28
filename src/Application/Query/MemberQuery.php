@@ -24,6 +24,13 @@ interface MemberQuery
      */
     public function loansOf(int $memberId): array;
 
+    /**
+     * Every member by name, for the select of the lending form.
+     *
+     * @return array<int, array{id: int, name: string, document: string, active: bool}>
+     */
+    public function optionsForLending(): array;
+
     /** Pesos of fines the member has not paid yet. */
     public function unpaidFineTotal(int $memberId): float;
 }

@@ -16,6 +16,14 @@ final class FakeCopyQuery implements CopyQuery
         $this->copies[$bookId][] = ['id' => $id, 'code' => $code, 'status' => $status];
     }
 
+    /** @var array<int, array{id: int, code: string, status: string, title: string}> */
+    public $lendable = [];
+
+    public function forLending(): array
+    {
+        return $this->lendable;
+    }
+
     public function ofBook(int $bookId): array
     {
         return $this->copies[$bookId] ?? [];

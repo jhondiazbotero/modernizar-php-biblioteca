@@ -8,6 +8,7 @@ use Library\Http\Controller\AuthController;
 use Library\Http\Controller\BookController;
 use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 
 /**
@@ -30,6 +31,9 @@ final class Router
         '/libros.php' => [BookController::class, 'index', true],
         '/libro_editar.php' => [BookController::class, 'edit', true],
         '/ejemplares.php' => [CopyController::class, 'index', true],
+        '/prestar.php' => [LoanController::class, 'lend', true],
+        '/devolver.php' => [LoanController::class, 'giveBack', true],
+        '/prestamos.php' => [LoanController::class, 'index', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];

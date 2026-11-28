@@ -13,4 +13,11 @@ interface CopyQuery
      * @return array<int, array{id: int, code: string, status: string}>
      */
     public function ofBook(int $bookId): array;
+
+    /**
+     * Every copy that is not withdrawn, by book title and code, for the select of the lending form.
+     *
+     * @return array<int, array{id: int, code: string, status: string, title: string}>
+     */
+    public function forLending(): array;
 }

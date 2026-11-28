@@ -7,19 +7,24 @@ namespace Library\Bootstrap;
 use Library\Application\AddCopy;
 use Library\Application\Authenticate;
 use Library\Application\EditBook;
+use Library\Application\LendCopy;
 use Library\Application\EditMember;
 use Library\Application\RegisterBook;
 use Library\Application\RegisterMember;
+use Library\Application\ReturnLoan;
 use Library\Application\WithdrawCopy;
 use Library\Auth\PasswordVerifier;
 use Library\Config\DatabaseConfig;
 use Library\Config\MissingConfigurationException;
 use Library\Database\ConnectionFactory;
 use Library\Domain\Clock;
+use Library\Domain\FinePolicy;
+use Library\Domain\ReservationQueue;
 use Library\Http\Controller\AuthController;
 use Library\Http\Controller\BookController;
 use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 use Library\Http\ErrorPage;
 use Library\Http\PageRenderer;
@@ -32,11 +37,14 @@ use Library\Infrastructure\Clock\RequestClock;
 use Library\Infrastructure\Persistence\PdoBookRepository;
 use Library\Infrastructure\Persistence\PdoCopyRepository;
 use Library\Infrastructure\Persistence\PdoLibrarianRepository;
+use Library\Infrastructure\Persistence\PdoLoanRepository;
 use Library\Infrastructure\Persistence\PdoMemberRepository;
+use Library\Infrastructure\Persistence\PdoReservationRepository;
 use Library\Infrastructure\Persistence\PdoTransactionManager;
 use Library\Infrastructure\Persistence\Query\PdoBookQuery;
 use Library\Infrastructure\Persistence\Query\PdoCopyQuery;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
+use Library\Infrastructure\Persistence\Query\PdoLoanQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 
 /**
@@ -101,6 +109,24 @@ final class Application
         return [
             AuthController::class => function (): AuthController {
                 return new AuthController($this->pages(), new Authenticate(new PdoLibrarianRepository($this->pdo()), new PasswordVerifier()));
+            },
+            LoanController::class => function () use ($request): LoanController {
+                $clock = $this->clock($request);
+                $transactions = new PdoTransactionManager($this->pdo());
+                $members = new PdoMemberRepository($this->pdo());
+                $copies = new PdoCopyRepository($this->pdo());
+                $loans = new PdoLoanRepository($this->pdo());
+                $reservations = new PdoReservationRepository($this->pdo());
+
+                return new LoanController(
+                    $this->pages(),
+                    new PdoLoanQuery($this->pdo()),
+                    new PdoMemberQuery($this->pdo()),
+                    new PdoCopyQuery($this->pdo()),
+                    new LendCopy($transactions, $members, $copies, $loans, $reservations, $clock),
+                    new ReturnLoan($transactions, $loans, $copies, $reservations, $clock, new FinePolicy(), new ReservationQueue()),
+                    $clock
+                );
             },
             MemberController::class => function () use ($request): MemberController {
                 $clock = $this->clock($request);
