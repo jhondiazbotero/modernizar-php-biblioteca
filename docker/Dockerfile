@@ -8,7 +8,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 # Etapa 2: la aplicación
 FROM php:7.4.33-apache
 
-RUN docker-php-ext-install mysqli \
+RUN docker-php-ext-install mysqli pdo_mysql \
     && a2enmod rewrite
 
 COPY docker/vhost.conf /etc/apache2/sites-available/000-default.conf
