@@ -6,7 +6,6 @@ namespace Library\Characterization\Tests;
 
 use Library\Characterization\AppClient;
 use Library\Characterization\CharacterizationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 final class ReservationsTest extends CharacterizationTestCase
 {
@@ -105,18 +104,14 @@ final class ReservationsTest extends CharacterizationTestCase
         self::assertSame('reservado', $this->db->fetchValue('SELECT estado FROM ejemplares WHERE id = 16'));
     }
 
-    /**
-     * Current behavior (known defect F2): cancelling an assigned reservation hands the copy to the first name in alphabetical order, not to the first who asked.
-     */
-    #[Group('known-defect')]
-    public function test_f2_cancel_gives_the_copy_to_the_first_name_in_alphabetical_order(): void
+    public function test_cancel_gives_the_copy_to_the_member_who_reserved_first(): void
     {
         // Paula reserved on 2026-11-14 and Mateo on 2026-11-16.
         $response = $this->app->post('reservas.php', ['accion' => 'cancelar', 'reserva_id' => 4], true);
 
-        $this->assertMessage('ok', 'Reserva cancelada. Ejemplar apartado para Mateo Salazar Gil', $response);
-        self::assertSame('asignada', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 6'));
-        self::assertSame('pendiente', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 5'));
+        $this->assertMessage('ok', 'Reserva cancelada. Ejemplar apartado para Paula Jiménez Arango', $response);
+        self::assertSame('asignada', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 5'));
+        self::assertSame('pendiente', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 6'));
     }
 
     public function test_cancel_rejects_unknown_and_closed_reservations(): void

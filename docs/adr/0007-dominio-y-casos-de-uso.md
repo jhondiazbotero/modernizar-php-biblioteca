@@ -30,6 +30,8 @@ La regla de esta tarea es **cero cambios de comportamiento**, así que el domini
 
 Quedaron fijadas en pruebas unitarias con su nombre (`test_f1_…`, `test_f2_…`) y siguen fijadas por las de caracterización por HTTP. Se arreglan en la tarea 6, cada una con su ADR y su prueba en rojo; ese cambio solo tocará `FinePolicy` y `ReservationQueue`.
 
+F1 se corrigió en el ADR 0009 y F2 en el ADR 0010; este último borró `NameCollation`.
+
 ### Orden de nombres como el de MySQL
 
 La cola antes dejaba el orden a MySQL (`ORDER BY s.nombre`, con la intercalación `utf8mb4_unicode_ci`: no distingue mayúsculas ni tildes). El dominio no puede preguntarle a la base, así que `NameCollation` compara igual: minúsculas, sin tildes (la `ñ` cuenta como `n`, como en esa intercalación y a diferencia de una colación española) y sin espacios al final; el desempate es el id de la reserva. La extensión `intl` no está en las imágenes de PHP 7.4, y `Collator('es')` tampoco ordenaría la `ñ` como MySQL; por eso la comparación es de PHP puro. Una prueba de integración compara su orden con el de MySQL sobre una lista de nombres con tildes, mayúsculas, `ñ`, `ü`, espacios y números.

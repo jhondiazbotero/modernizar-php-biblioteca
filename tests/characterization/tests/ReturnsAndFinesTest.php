@@ -6,7 +6,6 @@ namespace Library\Characterization\Tests;
 
 use Library\Characterization\AppClient;
 use Library\Characterization\CharacterizationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 use Psr\Http\Message\ResponseInterface;
 
 final class ReturnsAndFinesTest extends CharacterizationTestCase
@@ -118,18 +117,14 @@ final class ReturnsAndFinesTest extends CharacterizationTestCase
         self::assertSame('disponible', $this->db->fetchValue('SELECT estado FROM ejemplares WHERE id = 14'));
     }
 
-    /**
-     * Current behavior (known defect F2): the copy goes to the first member of the queue by name, not to the one who reserved first.
-     */
-    #[Group('known-defect')]
-    public function test_f2_return_gives_the_copy_to_the_first_name_in_alphabetical_order(): void
+    public function test_return_gives_the_copy_to_the_member_who_reserved_first(): void
     {
         // Sofía reserved on 2026-11-10 and Andrés on 2026-11-12.
         $response = $this->returnLoan(2, '2026-11-20');
 
-        $this->assertMessage('ok', 'Devolución registrada: Misericordia de Carlos Pérez Mejía. Ejemplar apartado para Andrés Ramírez Soto', $response);
-        self::assertSame('asignada', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 2'));
-        self::assertSame('pendiente', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 1'));
+        $this->assertMessage('ok', 'Devolución registrada: Misericordia de Carlos Pérez Mejía. Ejemplar apartado para Sofía Martínez Vega', $response);
+        self::assertSame('asignada', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 1'));
+        self::assertSame('pendiente', $this->db->fetchValue('SELECT estado FROM reservas WHERE id = 2'));
         self::assertSame('reservado', $this->db->fetchValue('SELECT estado FROM ejemplares WHERE id = 8'));
     }
 

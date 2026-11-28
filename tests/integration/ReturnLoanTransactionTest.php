@@ -29,10 +29,10 @@ final class ReturnLoanTransactionTest extends DatabaseTestCase
 
         $result = $this->returnLoan()->handle(1);
 
-        self::assertSame('Álvaro Segundo', $result->getAssignedMemberName());
-        self::assertSame('asignada', $this->scalar('SELECT estado FROM reservas WHERE id = 8'));
-        self::assertEquals(10, $this->scalar('SELECT ejemplar_id FROM reservas WHERE id = 8'));
-        self::assertSame('pendiente', $this->scalar('SELECT estado FROM reservas WHERE id = 7'));
+        self::assertSame('Zoe Primera', $result->getAssignedMemberName());
+        self::assertSame('asignada', $this->scalar('SELECT estado FROM reservas WHERE id = 7'));
+        self::assertEquals(10, $this->scalar('SELECT ejemplar_id FROM reservas WHERE id = 7'));
+        self::assertSame('pendiente', $this->scalar('SELECT estado FROM reservas WHERE id = 8'));
         self::assertSame('reservado', $this->scalar('SELECT estado FROM ejemplares WHERE id = 10'));
     }
 
