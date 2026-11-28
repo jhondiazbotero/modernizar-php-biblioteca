@@ -17,7 +17,7 @@ final class InMemoryMemberRepository implements MemberRepository
         $this->store = $store;
     }
 
-    public function find(int $id): ?MemberSnapshot
+    public function findForUpdate(int $id): ?MemberSnapshot
     {
         return $this->store->members[$id] ?? null;
     }

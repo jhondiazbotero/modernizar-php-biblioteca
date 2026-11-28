@@ -54,7 +54,7 @@ final class PlaceReservation
     public function handle(int $memberId, int $bookId): ReservationResult
     {
         return $this->transactions->transactional(function () use ($memberId, $bookId): ReservationResult {
-            $member = $this->members->find($memberId);
+            $member = $this->members->findForUpdate($memberId);
             if ($member === null) {
                 return ReservationResult::failure('member_not_found');
             }

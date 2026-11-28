@@ -61,7 +61,7 @@ final class LendCopy
     public function handle(int $memberId, int $copyId): LendResult
     {
         return $this->transactions->transactional(function () use ($memberId, $copyId): LendResult {
-            $member = $this->members->find($memberId);
+            $member = $this->members->findForUpdate($memberId);
             if ($member === null) {
                 return LendResult::failure('member_not_found');
             }
