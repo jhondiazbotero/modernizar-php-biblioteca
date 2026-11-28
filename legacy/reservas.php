@@ -1,6 +1,8 @@
 <?php
 include 'includes/conexion.php';
 include 'includes/funciones.php';
+include 'includes/servicios.php';
+include 'includes/mensajes.php';
 verificar_sesion();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -10,80 +12,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $socio_id = isset($_POST['socio_id']) ? (int)$_POST['socio_id'] : 0;
         $libro_id = isset($_POST['libro_id']) ? (int)$_POST['libro_id'] : 0;
 
-        $consulta = $db->prepare('SELECT * FROM socios WHERE id = ?');
-        $consulta->execute(array($socio_id));
-        $socio = $consulta->fetch();
-        if (!$socio) {
-            redirigir('reservas.php', 'Elige un socio.', 'error');
+        $resultado = servicios()['reservar']->handle($socio_id, $libro_id);
+        if (!$resultado->isSuccess()) {
+            redirigir('reservas.php', mensaje_error('reservas', $resultado->getErrorCode()), 'error');
         }
-
-        $consulta = $db->prepare('SELECT * FROM libros WHERE id = ?');
-        $consulta->execute(array($libro_id));
-        $libro = $consulta->fetch();
-        if (!$libro) {
-            redirigir('reservas.php', 'Elige un libro.', 'error');
-        }
-
-        $consulta = $db->prepare("SELECT COUNT(*) FROM ejemplares WHERE libro_id = ? AND estado = 'disponible'");
-        $consulta->execute(array($libro_id));
-        if ($consulta->fetchColumn() > 0) {
-            redirigir('reservas.php', 'El libro tiene ejemplares disponibles: no hace falta reservarlo.', 'error');
-        }
-
-        $consulta = $db->prepare("SELECT id FROM reservas WHERE libro_id = ? AND socio_id = ? AND estado = 'pendiente'");
-        $consulta->execute(array($libro_id, $socio_id));
-        if ($consulta->fetch()) {
-            redirigir('reservas.php', 'El socio ya tiene una reserva pendiente de ese libro.', 'error');
-        }
-
-        $ahora = ahora();
-        $consulta = $db->prepare("INSERT INTO reservas (libro_id, socio_id, fecha_reserva, estado) VALUES (?, ?, ?, 'pendiente')");
-        $consulta->execute(array($libro_id, $socio_id, $ahora));
-        redirigir('reservas.php?libro_id=' . $libro_id, 'Reserva registrada para ' . $socio['nombre'] . '.');
+        redirigir('reservas.php?libro_id=' . $resultado->getBookId(), 'Reserva registrada para ' . $resultado->getMemberName() . '.');
     }
 
     if ($accion == 'cancelar') {
         $reserva_id = isset($_POST['reserva_id']) ? (int)$_POST['reserva_id'] : 0;
 
-        $consulta = $db->prepare('SELECT * FROM reservas WHERE id = ?');
-        $consulta->execute(array($reserva_id));
-        $reserva = $consulta->fetch();
-        if (!$reserva) {
-            redirigir('reservas.php', 'La reserva no existe.', 'error');
-        }
-        if ($reserva['estado'] != 'pendiente' && $reserva['estado'] != 'asignada') {
-            redirigir('reservas.php', 'Esa reserva ya no se puede cancelar.', 'error');
+        $resultado = servicios()['cancelar_reserva']->handle($reserva_id);
+        if (!$resultado->isSuccess()) {
+            redirigir('reservas.php', mensaje_error('reservas', $resultado->getErrorCode()), 'error');
         }
 
-        $consulta = $db->prepare("UPDATE reservas SET estado = 'cancelada' WHERE id = ?");
-        $consulta->execute(array($reserva_id));
         $msg = 'Reserva cancelada.';
-
-        // si tenía un ejemplar apartado, pasa a la siguiente de la cola
-        if ($reserva['estado'] == 'asignada') {
-            $ejemplar_id = (int)$reserva['ejemplar_id'];
-            $libro_id = (int)$reserva['libro_id'];
-            $consulta = $db->prepare("SELECT r.id, s.nombre
-                FROM reservas r
-                JOIN socios s ON s.id = r.socio_id
-                WHERE r.libro_id = ? AND r.estado = 'pendiente'
-                ORDER BY s.nombre ASC
-                LIMIT 1");
-            $consulta->execute(array($libro_id));
-            $sig = $consulta->fetch();
-            if ($sig) {
-                $consulta = $db->prepare("UPDATE reservas SET estado = 'asignada', ejemplar_id = ? WHERE id = ?");
-                $consulta->execute(array($ejemplar_id, (int)$sig['id']));
-                $consulta = $db->prepare("UPDATE ejemplares SET estado = 'reservado' WHERE id = ?");
-                $consulta->execute(array($ejemplar_id));
-                $msg .= ' Ejemplar apartado para ' . $sig['nombre'];
+        if ($resultado->hadCopy()) {
+            if ($resultado->getAssignedMemberName() !== null) {
+                $msg .= ' Ejemplar apartado para ' . $resultado->getAssignedMemberName();
             } else {
-                $consulta = $db->prepare("UPDATE ejemplares SET estado = 'disponible' WHERE id = ?");
-                $consulta->execute(array($ejemplar_id));
                 $msg .= ' El ejemplar quedó disponible.';
             }
         }
-
         redirigir('reservas.php', $msg);
     }
 }
