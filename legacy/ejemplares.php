@@ -8,44 +8,51 @@ if (isset($_POST['libro_id'])) {
     $libro_id = (int)$_POST['libro_id'];
 }
 
-$r = mysqli_query($con, "SELECT * FROM libros WHERE id = $libro_id");
-if (mysqli_num_rows($r) == 0) {
+$consulta = $db->prepare('SELECT * FROM libros WHERE id = ?');
+$consulta->execute(array($libro_id));
+$libro = $consulta->fetch();
+if (!$libro) {
     redirigir('libros.php', 'El libro no existe.', 'error');
 }
-$libro = mysqli_fetch_assoc($r);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $accion = isset($_POST['accion']) ? $_POST['accion'] : '';
 
     if ($accion == 'alta') {
-        $codigo = mysqli_real_escape_string($con, trim(isset($_POST['codigo']) ? $_POST['codigo'] : ''));
+        $codigo = trim(isset($_POST['codigo']) ? $_POST['codigo'] : '');
         if ($codigo == '') {
             redirigir('ejemplares.php?libro_id=' . $libro_id, 'Escribe el código del ejemplar.', 'error');
         }
-        $r = mysqli_query($con, "SELECT id FROM ejemplares WHERE codigo = '$codigo'");
-        if (mysqli_num_rows($r) > 0) {
+        $consulta = $db->prepare('SELECT id FROM ejemplares WHERE codigo = ?');
+        $consulta->execute(array($codigo));
+        if ($consulta->fetch()) {
             redirigir('ejemplares.php?libro_id=' . $libro_id, 'Ya existe un ejemplar con ese código.', 'error');
         }
-        mysqli_query($con, "INSERT INTO ejemplares (libro_id, codigo, estado) VALUES ($libro_id, '$codigo', 'disponible')");
+        $consulta = $db->prepare("INSERT INTO ejemplares (libro_id, codigo, estado) VALUES (?, ?, 'disponible')");
+        $consulta->execute(array($libro_id, $codigo));
         redirigir('ejemplares.php?libro_id=' . $libro_id, 'Ejemplar agregado.');
     }
 
     if ($accion == 'baja') {
         $ejemplar_id = isset($_POST['ejemplar_id']) ? (int)$_POST['ejemplar_id'] : 0;
-        $r = mysqli_query($con, "SELECT estado FROM ejemplares WHERE id = $ejemplar_id AND libro_id = $libro_id");
-        if (mysqli_num_rows($r) == 0) {
+        $consulta = $db->prepare('SELECT estado FROM ejemplares WHERE id = ? AND libro_id = ?');
+        $consulta->execute(array($ejemplar_id, $libro_id));
+        $e = $consulta->fetch();
+        if (!$e) {
             redirigir('ejemplares.php?libro_id=' . $libro_id, 'El ejemplar no existe.', 'error');
         }
-        $e = mysqli_fetch_assoc($r);
         if ($e['estado'] == 'prestado' || $e['estado'] == 'reservado') {
             redirigir('ejemplares.php?libro_id=' . $libro_id, 'No se puede dar de baja un ejemplar prestado o reservado.', 'error');
         }
-        mysqli_query($con, "UPDATE ejemplares SET estado = 'baja' WHERE id = $ejemplar_id");
+        $consulta = $db->prepare("UPDATE ejemplares SET estado = 'baja' WHERE id = ?");
+        $consulta->execute(array($ejemplar_id));
         redirigir('ejemplares.php?libro_id=' . $libro_id, 'Ejemplar dado de baja.');
     }
 }
 
-$ejemplares = mysqli_query($con, "SELECT * FROM ejemplares WHERE libro_id = $libro_id ORDER BY codigo ASC");
+$consulta = $db->prepare('SELECT * FROM ejemplares WHERE libro_id = ? ORDER BY codigo ASC');
+$consulta->execute(array($libro_id));
+$ejemplares = $consulta->fetchAll();
 
 $titulo = 'Ejemplares de ' . $libro['titulo'];
 include 'includes/cabecera.php';
@@ -59,7 +66,7 @@ include 'includes/cabecera.php';
         <th>Estado</th>
         <th>Acciones</th>
     </tr>
-    <?php while ($e = mysqli_fetch_assoc($ejemplares)) { ?>
+    <?php foreach ($ejemplares as $e) { ?>
     <tr>
         <td><?php echo htmlspecialchars($e['codigo']); ?></td>
         <td><?php echo ucfirst($e['estado']); ?></td>

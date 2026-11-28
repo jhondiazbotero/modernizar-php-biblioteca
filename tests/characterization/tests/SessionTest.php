@@ -49,6 +49,60 @@ final class SessionTest extends CharacterizationTestCase
         $this->assertMessage('error', 'Usuario o clave incorrectos.', $response);
     }
 
+    public function test_login_with_an_md5_account_replaces_the_stored_value_with_a_modern_hash(): void
+    {
+        $md5 = $this->useAnMd5Account();
+        self::assertSame(32, strlen($md5), 'The template account must still be an MD5');
+
+        $this->assertRedirectsTo('index.php', $this->anonymous()->login());
+
+        $stored = $this->storedPassword();
+        self::assertStringStartsWith('$2y$', $stored);
+        self::assertNotSame($md5, $stored);
+        self::assertTrue(password_verify((string) getenv('DEMO_PASSWORD'), $stored));
+
+        $again = $this->anonymous();
+        $this->assertRedirectsTo('index.php', $again->login());
+        self::assertSame('Tablero', $this->page($again->get('index.php'))->heading());
+        self::assertSame($stored, $this->storedPassword(), 'A hash that is up to date is not rewritten');
+    }
+
+    public function test_a_wrong_password_leaves_an_md5_account_untouched(): void
+    {
+        $md5 = $this->useAnMd5Account();
+
+        $response = $this->anonymous()->login('admin', 'not-the-password', true);
+
+        $this->assertMessage('error', 'Usuario o clave incorrectos.', $response);
+        self::assertSame($md5, $this->storedPassword());
+    }
+
+    public function test_a_wrong_password_leaves_a_modern_hash_untouched(): void
+    {
+        $this->anonymous()->login();
+        $stored = $this->storedPassword();
+        self::assertStringStartsWith('$2y$', $stored);
+
+        $this->anonymous()->login('admin', 'not-the-password', true);
+
+        self::assertSame($stored, $this->storedPassword());
+    }
+
+    public function test_login_changes_the_session_cookie(): void
+    {
+        $client = $this->anonymous();
+        $client->get('login.php');
+        $before = $client->cookie('PHPSESSID');
+        self::assertNotNull($before, 'The login form must start a session');
+
+        $this->assertRedirectsTo('index.php', $client->login());
+
+        $after = $client->cookie('PHPSESSID');
+        self::assertNotNull($after);
+        self::assertNotSame($before, $after, 'The session id must change when the user logs in');
+        self::assertSame('Tablero', $this->page($client->get('index.php'))->heading());
+    }
+
     public function test_login_form_redirects_to_dashboard_when_already_logged_in(): void
     {
         $this->assertRedirectsTo('index.php', $this->app->get('login.php'));
@@ -109,5 +163,19 @@ final class SessionTest extends CharacterizationTestCase
         self::assertSame('login.php?msg=Sesi%C3%B3n+cerrada.+%C2%A1Hasta+pronto%21&tipo=ok', AppClient::landedOn($response));
         $this->assertMessage('ok', 'Sesión cerrada. ¡Hasta pronto!', $response);
         $this->assertRedirectsTo('login.php', $this->app->get('prestamos.php'));
+    }
+
+    /** Puts the template administrator back to a plain MD5, as in an account created before password_hash. */
+    private function useAnMd5Account(): string
+    {
+        $md5 = md5((string) getenv('DEMO_PASSWORD'));
+        $this->db->execute('UPDATE bibliotecarios SET clave = ? WHERE usuario = ?', [$md5, 'admin']);
+
+        return $md5;
+    }
+
+    private function storedPassword(): string
+    {
+        return (string) $this->db->fetchValue('SELECT clave FROM bibliotecarios WHERE usuario = ?', ['admin']);
     }
 }

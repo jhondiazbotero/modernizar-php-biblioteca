@@ -10,66 +10,76 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $socio_id = isset($_POST['socio_id']) ? (int)$_POST['socio_id'] : 0;
         $libro_id = isset($_POST['libro_id']) ? (int)$_POST['libro_id'] : 0;
 
-        $r = mysqli_query($con, "SELECT * FROM socios WHERE id = $socio_id");
-        if (mysqli_num_rows($r) == 0) {
+        $consulta = $db->prepare('SELECT * FROM socios WHERE id = ?');
+        $consulta->execute(array($socio_id));
+        $socio = $consulta->fetch();
+        if (!$socio) {
             redirigir('reservas.php', 'Elige un socio.', 'error');
         }
-        $socio = mysqli_fetch_assoc($r);
 
-        $r = mysqli_query($con, "SELECT * FROM libros WHERE id = $libro_id");
-        if (mysqli_num_rows($r) == 0) {
+        $consulta = $db->prepare('SELECT * FROM libros WHERE id = ?');
+        $consulta->execute(array($libro_id));
+        $libro = $consulta->fetch();
+        if (!$libro) {
             redirigir('reservas.php', 'Elige un libro.', 'error');
         }
-        $libro = mysqli_fetch_assoc($r);
 
-        $r = mysqli_query($con, "SELECT COUNT(*) AS n FROM ejemplares WHERE libro_id = $libro_id AND estado = 'disponible'");
-        $f = mysqli_fetch_assoc($r);
-        if ($f['n'] > 0) {
+        $consulta = $db->prepare("SELECT COUNT(*) FROM ejemplares WHERE libro_id = ? AND estado = 'disponible'");
+        $consulta->execute(array($libro_id));
+        if ($consulta->fetchColumn() > 0) {
             redirigir('reservas.php', 'El libro tiene ejemplares disponibles: no hace falta reservarlo.', 'error');
         }
 
-        $r = mysqli_query($con, "SELECT id FROM reservas WHERE libro_id = $libro_id AND socio_id = $socio_id AND estado = 'pendiente'");
-        if (mysqli_num_rows($r) > 0) {
+        $consulta = $db->prepare("SELECT id FROM reservas WHERE libro_id = ? AND socio_id = ? AND estado = 'pendiente'");
+        $consulta->execute(array($libro_id, $socio_id));
+        if ($consulta->fetch()) {
             redirigir('reservas.php', 'El socio ya tiene una reserva pendiente de ese libro.', 'error');
         }
 
         $ahora = ahora();
-        mysqli_query($con, "INSERT INTO reservas (libro_id, socio_id, fecha_reserva, estado) VALUES ($libro_id, $socio_id, '$ahora', 'pendiente')");
+        $consulta = $db->prepare("INSERT INTO reservas (libro_id, socio_id, fecha_reserva, estado) VALUES (?, ?, ?, 'pendiente')");
+        $consulta->execute(array($libro_id, $socio_id, $ahora));
         redirigir('reservas.php?libro_id=' . $libro_id, 'Reserva registrada para ' . $socio['nombre'] . '.');
     }
 
     if ($accion == 'cancelar') {
         $reserva_id = isset($_POST['reserva_id']) ? (int)$_POST['reserva_id'] : 0;
 
-        $r = mysqli_query($con, "SELECT * FROM reservas WHERE id = $reserva_id");
-        if (mysqli_num_rows($r) == 0) {
+        $consulta = $db->prepare('SELECT * FROM reservas WHERE id = ?');
+        $consulta->execute(array($reserva_id));
+        $reserva = $consulta->fetch();
+        if (!$reserva) {
             redirigir('reservas.php', 'La reserva no existe.', 'error');
         }
-        $reserva = mysqli_fetch_assoc($r);
         if ($reserva['estado'] != 'pendiente' && $reserva['estado'] != 'asignada') {
             redirigir('reservas.php', 'Esa reserva ya no se puede cancelar.', 'error');
         }
 
-        mysqli_query($con, "UPDATE reservas SET estado = 'cancelada' WHERE id = $reserva_id");
+        $consulta = $db->prepare("UPDATE reservas SET estado = 'cancelada' WHERE id = ?");
+        $consulta->execute(array($reserva_id));
         $msg = 'Reserva cancelada.';
 
         // si tenía un ejemplar apartado, pasa a la siguiente de la cola
         if ($reserva['estado'] == 'asignada') {
             $ejemplar_id = (int)$reserva['ejemplar_id'];
             $libro_id = (int)$reserva['libro_id'];
-            $r = mysqli_query($con, "SELECT r.id, s.nombre
+            $consulta = $db->prepare("SELECT r.id, s.nombre
                 FROM reservas r
                 JOIN socios s ON s.id = r.socio_id
-                WHERE r.libro_id = $libro_id AND r.estado = 'pendiente'
+                WHERE r.libro_id = ? AND r.estado = 'pendiente'
                 ORDER BY s.nombre ASC
                 LIMIT 1");
-            if (mysqli_num_rows($r) > 0) {
-                $sig = mysqli_fetch_assoc($r);
-                mysqli_query($con, "UPDATE reservas SET estado = 'asignada', ejemplar_id = $ejemplar_id WHERE id = " . (int)$sig['id']);
-                mysqli_query($con, "UPDATE ejemplares SET estado = 'reservado' WHERE id = $ejemplar_id");
+            $consulta->execute(array($libro_id));
+            $sig = $consulta->fetch();
+            if ($sig) {
+                $consulta = $db->prepare("UPDATE reservas SET estado = 'asignada', ejemplar_id = ? WHERE id = ?");
+                $consulta->execute(array($ejemplar_id, (int)$sig['id']));
+                $consulta = $db->prepare("UPDATE ejemplares SET estado = 'reservado' WHERE id = ?");
+                $consulta->execute(array($ejemplar_id));
                 $msg .= ' Ejemplar apartado para ' . $sig['nombre'];
             } else {
-                mysqli_query($con, "UPDATE ejemplares SET estado = 'disponible' WHERE id = $ejemplar_id");
+                $consulta = $db->prepare("UPDATE ejemplares SET estado = 'disponible' WHERE id = ?");
+                $consulta->execute(array($ejemplar_id));
                 $msg .= ' El ejemplar quedó disponible.';
             }
         }
@@ -80,26 +90,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $libro_cola = isset($_GET['libro_id']) ? (int)$_GET['libro_id'] : 0;
 
-$socios = mysqli_query($con, "SELECT id, nombre FROM socios WHERE activo = 1 ORDER BY nombre ASC");
-$libros = mysqli_query($con, "SELECT id, titulo, autor FROM libros ORDER BY titulo ASC");
+$socios = $db->query("SELECT id, nombre FROM socios WHERE activo = 1 ORDER BY nombre ASC")->fetchAll();
+$libros = $db->query("SELECT id, titulo, autor FROM libros ORDER BY titulo ASC")->fetchAll();
 
 if ($libro_cola) {
-    $r = mysqli_query($con, "SELECT titulo FROM libros WHERE id = $libro_cola");
-    $lc = mysqli_fetch_assoc($r);
-    $cola = mysqli_query($con, "SELECT r.*, s.nombre AS socio
+    $consulta = $db->prepare('SELECT titulo FROM libros WHERE id = ?');
+    $consulta->execute(array($libro_cola));
+    $lc = $consulta->fetch();
+    $consulta = $db->prepare("SELECT r.*, s.nombre AS socio
         FROM reservas r
         JOIN socios s ON s.id = r.socio_id
-        WHERE r.libro_id = $libro_cola AND r.estado IN ('pendiente', 'asignada')
+        WHERE r.libro_id = ? AND r.estado IN ('pendiente', 'asignada')
         ORDER BY r.fecha_reserva ASC");
+    $consulta->execute(array($libro_cola));
+    $cola = $consulta->fetchAll();
 }
 
-$reservas = mysqli_query($con, "SELECT r.*, s.nombre AS socio, l.titulo, e.codigo
+$reservas = $db->query("SELECT r.*, s.nombre AS socio, l.titulo, e.codigo
     FROM reservas r
     JOIN socios s ON s.id = r.socio_id
     JOIN libros l ON l.id = r.libro_id
     LEFT JOIN ejemplares e ON e.id = r.ejemplar_id
     WHERE r.estado IN ('pendiente', 'asignada')
-    ORDER BY l.titulo ASC, r.fecha_reserva ASC");
+    ORDER BY l.titulo ASC, r.fecha_reserva ASC")->fetchAll();
 
 $titulo = 'Reservas';
 include 'includes/cabecera.php';
@@ -108,7 +121,7 @@ include 'includes/cabecera.php';
 
 <?php if ($libro_cola && $lc) { ?>
 <h3>Cola de «<?php echo htmlspecialchars($lc['titulo']); ?>»</h3>
-<?php if (mysqli_num_rows($cola) == 0) { ?>
+<?php if (count($cola) == 0) { ?>
     <p>Este libro no tiene reservas en cola.</p>
 <?php } else { ?>
 <table>
@@ -118,7 +131,7 @@ include 'includes/cabecera.php';
         <th>Reservado el</th>
         <th>Estado</th>
     </tr>
-    <?php $lugar = 1; while ($c = mysqli_fetch_assoc($cola)) { ?>
+    <?php $lugar = 1; foreach ($cola as $c) { ?>
     <tr>
         <td class="num"><?php echo $lugar++; ?></td>
         <td><?php echo htmlspecialchars($c['socio']); ?></td>
@@ -131,7 +144,7 @@ include 'includes/cabecera.php';
 <?php } ?>
 
 <h3>Reservas vigentes</h3>
-<?php if (mysqli_num_rows($reservas) == 0) { ?>
+<?php if (count($reservas) == 0) { ?>
     <p>No hay reservas vigentes.</p>
 <?php } else { ?>
 <table>
@@ -143,7 +156,7 @@ include 'includes/cabecera.php';
         <th>Ejemplar</th>
         <th>Acciones</th>
     </tr>
-    <?php while ($r = mysqli_fetch_assoc($reservas)) { ?>
+    <?php foreach ($reservas as $r) { ?>
     <tr>
         <td><a href="reservas.php?libro_id=<?php echo $r['libro_id']; ?>"><?php echo htmlspecialchars($r['titulo']); ?></a></td>
         <td><?php echo htmlspecialchars($r['socio']); ?></td>
@@ -169,7 +182,7 @@ include 'includes/cabecera.php';
         <label for="socio_id">Socio</label>
         <select id="socio_id" name="socio_id">
             <option value="">Elige un socio</option>
-            <?php while ($s = mysqli_fetch_assoc($socios)) { ?>
+            <?php foreach ($socios as $s) { ?>
             <option value="<?php echo $s['id']; ?>"><?php echo htmlspecialchars($s['nombre']); ?></option>
             <?php } ?>
         </select>
@@ -178,7 +191,7 @@ include 'includes/cabecera.php';
         <label for="libro_id">Libro</label>
         <select id="libro_id" name="libro_id">
             <option value="">Elige un libro</option>
-            <?php while ($l = mysqli_fetch_assoc($libros)) { ?>
+            <?php foreach ($libros as $l) { ?>
             <option value="<?php echo $l['id']; ?>"><?php echo htmlspecialchars($l['titulo']); ?> - <?php echo htmlspecialchars($l['autor']); ?></option>
             <?php } ?>
         </select>

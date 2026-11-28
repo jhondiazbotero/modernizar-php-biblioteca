@@ -70,18 +70,18 @@ function redirigir($url, $msg, $tipo = 'ok')
 
 function contar_prestamos_activos($socio_id)
 {
-    global $con;
-    $r = mysqli_query($con, "SELECT COUNT(*) AS n FROM prestamos WHERE socio_id = " . (int)$socio_id . " AND fecha_devolucion IS NULL");
-    $f = mysqli_fetch_assoc($r);
-    return (int)$f['n'];
+    global $db;
+    $consulta = $db->prepare('SELECT COUNT(*) FROM prestamos WHERE socio_id = ? AND fecha_devolucion IS NULL');
+    $consulta->execute(array((int)$socio_id));
+    return (int)$consulta->fetchColumn();
 }
 
 function contar_multas_sin_pagar($socio_id)
 {
-    global $con;
-    $r = mysqli_query($con, "SELECT COUNT(*) AS n FROM prestamos WHERE socio_id = " . (int)$socio_id . " AND multa > 0 AND multa_pagada = 0");
-    $f = mysqli_fetch_assoc($r);
-    return (int)$f['n'];
+    global $db;
+    $consulta = $db->prepare('SELECT COUNT(*) FROM prestamos WHERE socio_id = ? AND multa > 0 AND multa_pagada = 0');
+    $consulta->execute(array((int)$socio_id));
+    return (int)$consulta->fetchColumn();
 }
 
 function estado_socio($activo)

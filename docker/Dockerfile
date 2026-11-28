@@ -3,12 +3,12 @@ FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts \
-    --ignore-platform-req=ext-mysqli
+    --ignore-platform-req=ext-pdo_mysql
 
 # Etapa 2: la aplicación
 FROM php:7.4.33-apache
 
-RUN docker-php-ext-install mysqli \
+RUN docker-php-ext-install pdo_mysql \
     && a2enmod rewrite
 
 COPY docker/vhost.conf /etc/apache2/sites-available/000-default.conf

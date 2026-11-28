@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Library\Characterization\Tests;
 
 use Library\Characterization\CharacterizationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 final class SearchTest extends CharacterizationTestCase
 {
@@ -50,31 +49,74 @@ final class SearchTest extends CharacterizationTestCase
         self::assertSame([['Misericordia', 'Benito Pérez Galdós', '1897', '0', 'Ejemplares']], $rows);
     }
 
-    /**
-     * Current behavior (known defect F3): the search text is concatenated into the SQL, so a crafted text returns the whole catalog (the ORDER BY is commented out too, so the order is by id).
-     */
-    #[Group('known-defect')]
-    public function test_f3_sql_injection_returns_the_whole_catalog(): void
+    public function test_text_that_looks_like_sql_is_searched_as_plain_text(): void
     {
         $html = $this->page($this->app->get('buscar.php', ['q' => "' OR 1=1 -- "]));
 
-        $titles = array_column($html->tableRows(), 0);
-        $all = $this->db->fetchAll('SELECT titulo FROM libros ORDER BY id');
-        self::assertCount(15, $titles);
-        self::assertSame(array_column($all, 'titulo'), $titles);
-        self::assertSame('15 resultado(s).', $html->text('//h2/following::p[last()]'));
+        self::assertSame(0, $html->count('//table'));
+        self::assertSame("No se encontraron libros para «' OR 1=1 -- ».", $html->text('//h2/following::p[last()]'));
+        self::assertNull($html->message());
     }
 
-    /**
-     * Current behavior (known defect F3): a single quote breaks the SQL and the MySQL error is printed on screen.
-     */
-    #[Group('known-defect')]
-    public function test_f3_single_quote_shows_the_mysql_error(): void
+    public function test_a_single_quote_shows_the_normal_empty_result_without_a_database_error(): void
     {
-        $html = $this->page($this->app->get('buscar.php', ['q' => "'"]));
+        $response = $this->app->get('buscar.php', ['q' => "'"]);
+        $html = $this->page($response);
 
-        self::assertSame('error', $html->messageKind());
-        self::assertStringContainsString('You have an error in your SQL syntax', (string) $html->message());
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame("No se encontraron libros para «'».", $html->text('//h2/following::p[last()]'));
+        self::assertNull($html->message());
         self::assertSame(0, $html->count('//table'));
+        self::assertStringNotContainsString('SQL', (string) $response->getBody());
+    }
+
+    public function test_a_percent_sign_is_searched_as_text_and_does_not_return_everything(): void
+    {
+        $html = $this->page($this->app->get('buscar.php', ['q' => '%']));
+
+        self::assertSame(0, $html->count('//table'));
+        self::assertSame('No se encontraron libros para «%».', $html->text('//h2/following::p[last()]'));
+    }
+
+    public function test_underscore_and_backslash_are_searched_as_text(): void
+    {
+        foreach (['_', '\\', 'Do_'] as $text) {
+            $html = $this->page($this->app->get('buscar.php', ['q' => $text]));
+
+            self::assertSame(0, $html->count('//table'), "«{$text}» must not match anything in the seed");
+        }
+    }
+
+    public function test_wildcard_characters_only_match_a_book_that_really_contains_them(): void
+    {
+        $this->db->execute('INSERT INTO libros (titulo, autor) VALUES (?, ?)', ['100% Cierto', 'Ana_Perez']);
+        $this->db->execute('INSERT INTO libros (titulo, autor) VALUES (?, ?)', ['100 Cierto', 'AnaXPerez']);
+        $this->db->execute('INSERT INTO libros (titulo, autor) VALUES (?, ?)', ['Ruta\\Casa', 'Nadie']);
+
+        $percent = array_column($this->page($this->app->get('buscar.php', ['q' => '0% C']))->tableRows(), 0);
+        $underscore = array_column($this->page($this->app->get('buscar.php', ['q' => 'a_P']))->tableRows(), 0);
+        $backslash = array_column($this->page($this->app->get('buscar.php', ['q' => 'a\\C']))->tableRows(), 0);
+
+        self::assertSame(['100% Cierto'], $percent);
+        self::assertSame(['100% Cierto'], $underscore);
+        self::assertSame(['Ruta\\Casa'], $backslash);
+    }
+
+    public function test_results_are_always_ordered_by_title(): void
+    {
+        $html = $this->page($this->app->get('buscar.php', ['q' => 'a']));
+
+        $titles = array_column($html->tableRows(), 0);
+        $expected = array_column(
+            $this->db->fetchAll("SELECT titulo FROM libros WHERE titulo LIKE '%a%' OR autor LIKE '%a%' ORDER BY titulo ASC"),
+            'titulo'
+        );
+        $byId = array_column(
+            $this->db->fetchAll("SELECT titulo FROM libros WHERE titulo LIKE '%a%' OR autor LIKE '%a%' ORDER BY id ASC"),
+            'titulo'
+        );
+        self::assertGreaterThan(5, count($titles));
+        self::assertNotSame($byId, $expected, 'The check needs a search where title order differs from id order');
+        self::assertSame($expected, $titles);
     }
 }

@@ -3,13 +3,13 @@ include 'includes/conexion.php';
 include 'includes/funciones.php';
 verificar_sesion();
 
-$libros = mysqli_query($con, "SELECT l.*,
+$libros = $db->query("SELECT l.*,
         COUNT(CASE WHEN e.estado <> 'baja' THEN 1 END) AS total,
         COUNT(CASE WHEN e.estado = 'disponible' THEN 1 END) AS disponibles
     FROM libros l
     LEFT JOIN ejemplares e ON e.libro_id = l.id
     GROUP BY l.id
-    ORDER BY l.titulo ASC");
+    ORDER BY l.titulo ASC")->fetchAll();
 
 $titulo = 'Libros';
 include 'includes/cabecera.php';
@@ -30,7 +30,7 @@ include 'includes/cabecera.php';
         <th class="num">Disponibles</th>
         <th>Acciones</th>
     </tr>
-    <?php while ($l = mysqli_fetch_assoc($libros)) { ?>
+    <?php foreach ($libros as $l) { ?>
     <tr>
         <td><?php echo htmlspecialchars($l['titulo']); ?></td>
         <td><?php echo htmlspecialchars($l['autor']); ?></td>

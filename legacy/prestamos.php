@@ -6,25 +6,35 @@ verificar_sesion();
 $hoy = hoy();
 $filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'activos';
 
+// Cada lista es una consulta completa: el filtro de la URL solo elige cuál se corre.
 if ($filtro == 'vencidos') {
-    $donde = "p.fecha_devolucion IS NULL AND p.fecha_vence < '$hoy'";
-    $orden = "p.fecha_vence ASC";
+    $consulta = $db->prepare('SELECT p.*, s.nombre AS socio, l.titulo, e.codigo
+        FROM prestamos p
+        JOIN socios s ON s.id = p.socio_id
+        JOIN ejemplares e ON e.id = p.ejemplar_id
+        JOIN libros l ON l.id = e.libro_id
+        WHERE p.fecha_devolucion IS NULL AND p.fecha_vence < ?
+        ORDER BY p.fecha_vence ASC');
+    $consulta->execute(array($hoy));
 } elseif ($filtro == 'devueltos') {
-    $donde = "p.fecha_devolucion IS NOT NULL";
-    $orden = "p.fecha_devolucion DESC, p.id DESC";
+    $consulta = $db->query('SELECT p.*, s.nombre AS socio, l.titulo, e.codigo
+        FROM prestamos p
+        JOIN socios s ON s.id = p.socio_id
+        JOIN ejemplares e ON e.id = p.ejemplar_id
+        JOIN libros l ON l.id = e.libro_id
+        WHERE p.fecha_devolucion IS NOT NULL
+        ORDER BY p.fecha_devolucion DESC, p.id DESC');
 } else {
     $filtro = 'activos';
-    $donde = "p.fecha_devolucion IS NULL";
-    $orden = "p.fecha_vence ASC";
+    $consulta = $db->query('SELECT p.*, s.nombre AS socio, l.titulo, e.codigo
+        FROM prestamos p
+        JOIN socios s ON s.id = p.socio_id
+        JOIN ejemplares e ON e.id = p.ejemplar_id
+        JOIN libros l ON l.id = e.libro_id
+        WHERE p.fecha_devolucion IS NULL
+        ORDER BY p.fecha_vence ASC');
 }
-
-$prestamos = mysqli_query($con, "SELECT p.*, s.nombre AS socio, l.titulo, e.codigo
-    FROM prestamos p
-    JOIN socios s ON s.id = p.socio_id
-    JOIN ejemplares e ON e.id = p.ejemplar_id
-    JOIN libros l ON l.id = e.libro_id
-    WHERE $donde
-    ORDER BY $orden");
+$prestamos = $consulta->fetchAll();
 
 $titulo = 'Préstamos';
 include 'includes/cabecera.php';
@@ -38,7 +48,7 @@ include 'includes/cabecera.php';
     <a href="prestar.php">Nuevo préstamo</a>
 </div>
 
-<?php if (mysqli_num_rows($prestamos) == 0) { ?>
+<?php if (count($prestamos) == 0) { ?>
     <p>No hay préstamos en esta lista.</p>
 <?php } else { ?>
 <table>
@@ -55,7 +65,7 @@ include 'includes/cabecera.php';
         <th>Acciones</th>
         <?php } ?>
     </tr>
-    <?php while ($p = mysqli_fetch_assoc($prestamos)) { ?>
+    <?php foreach ($prestamos as $p) { ?>
     <tr>
         <td><a href="socio_ver.php?id=<?php echo $p['socio_id']; ?>"><?php echo htmlspecialchars($p['socio']); ?></a></td>
         <td><?php echo htmlspecialchars($p['titulo']); ?></td>
