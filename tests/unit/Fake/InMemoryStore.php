@@ -35,6 +35,12 @@ final class InMemoryStore
     /** @var CopySnapshot[] */
     public $copies = [];
 
+    /** @var array<int, string> code by copy id */
+    public $copyCodes = [];
+
+    /** @var int */
+    public $nextCopyId = 1;
+
     /** @var array<int, array<string, mixed>> */
     public $loans = [];
 
@@ -79,6 +85,8 @@ final class InMemoryStore
     {
         $this->books[$bookId] = true;
         $this->copies[$id] = new CopySnapshot($id, $bookId, $title, $status);
+        $this->copyCodes[$id] = 'COD-' . $id;
+        $this->nextCopyId = max($this->nextCopyId, $id + 1);
     }
 
     public function addLoan(int $id, int $copyId, int $memberId, string $dueDate, ?string $returnedOn = null, int $fine = 0, bool $paid = false): void
@@ -138,6 +146,7 @@ final class InMemoryStore
             $this->nextLoanId, $this->nextReservationId, $this->writes,
             $this->memberData, $this->nextMemberId,
             $this->bookData, $this->nextBookId,
+            $this->copyCodes, $this->nextCopyId,
         ];
     }
 
@@ -147,6 +156,7 @@ final class InMemoryStore
         [$this->members, $this->books, $this->copies, $this->loans, $this->reservations,
             $this->nextLoanId, $this->nextReservationId, $this->writes,
             $this->memberData, $this->nextMemberId,
-            $this->bookData, $this->nextBookId] = $state;
+            $this->bookData, $this->nextBookId,
+            $this->copyCodes, $this->nextCopyId] = $state;
     }
 }

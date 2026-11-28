@@ -28,6 +28,16 @@ final class FailingCopyRepository implements CopyRepository
         return $this->inner->countAvailableOfBook($bookId);
     }
 
+    public function codeTaken(string $code): bool
+    {
+        return $this->inner->codeTaken($code);
+    }
+
+    public function add(int $bookId, string $code): int
+    {
+        return $this->inner->add($bookId, $code);
+    }
+
     public function updateStatus(int $copyId, string $status): void
     {
         throw new \RuntimeException('Forced failure while updating the copy.');

@@ -13,6 +13,12 @@ interface CopyRepository
 
     public function countAvailableOfBook(int $bookId): int;
 
+    /** Whether any copy, of any book, already has this code. */
+    public function codeTaken(string $code): bool;
+
+    /** Adds an available copy and returns its id. */
+    public function add(int $bookId, string $code): int;
+
     /** @param string $status one of the CopySnapshot status constants */
     public function updateStatus(int $copyId, string $status): void;
 }

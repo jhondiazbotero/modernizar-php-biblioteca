@@ -50,6 +50,22 @@ final class PdoCopyRepository implements CopyRepository
         return (int) $statement->fetchColumn();
     }
 
+    public function codeTaken(string $code): bool
+    {
+        $statement = $this->pdo->prepare('SELECT id FROM ejemplares WHERE codigo = ?');
+        $statement->execute([$code]);
+
+        return $statement->fetch() !== false;
+    }
+
+    public function add(int $bookId, string $code): int
+    {
+        $statement = $this->pdo->prepare("INSERT INTO ejemplares (libro_id, codigo, estado) VALUES (?, ?, 'disponible')");
+        $statement->execute([$bookId, $code]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
     public function updateStatus(int $copyId, string $status): void
     {
         if (!isset(self::DATABASE_STATUS[$status])) {

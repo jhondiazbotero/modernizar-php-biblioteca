@@ -34,6 +34,22 @@ final class InMemoryCopyRepository implements CopyRepository
         return $count;
     }
 
+    public function codeTaken(string $code): bool
+    {
+        return in_array($code, $this->store->copyCodes, true);
+    }
+
+    public function add(int $bookId, string $code): int
+    {
+        $this->store->write('copies.add');
+        $id = $this->store->nextCopyId++;
+        $title = isset($this->store->bookData[$bookId]) ? (string) $this->store->bookData[$bookId]['title'] : '';
+        $this->store->copies[$id] = new CopySnapshot($id, $bookId, $title, CopySnapshot::AVAILABLE);
+        $this->store->copyCodes[$id] = $code;
+
+        return $id;
+    }
+
     public function updateStatus(int $copyId, string $status): void
     {
         $this->store->write('copies.updateStatus');

@@ -14,7 +14,6 @@ final class LegacyRouterTest extends TestCase
     private const SCREENS = [
         'buscar.php',
         'devolver.php',
-        'ejemplares.php',
         'multas.php',
         'prestamos.php',
         'prestar.php',

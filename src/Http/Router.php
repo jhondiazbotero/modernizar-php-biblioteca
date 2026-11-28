@@ -6,6 +6,7 @@ namespace Library\Http;
 
 use Library\Http\Controller\AuthController;
 use Library\Http\Controller\BookController;
+use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Controller\MemberController;
 
@@ -28,6 +29,7 @@ final class Router
         '/socio_ver.php' => [MemberController::class, 'show', true],
         '/libros.php' => [BookController::class, 'index', true],
         '/libro_editar.php' => [BookController::class, 'edit', true],
+        '/ejemplares.php' => [CopyController::class, 'index', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];
