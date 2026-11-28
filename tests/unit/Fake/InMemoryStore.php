@@ -26,6 +26,12 @@ final class InMemoryStore
     /** @var array<int, bool> */
     public $books = [];
 
+    /** @var array<int, array<string, mixed>> isbn, title, author and year by book id */
+    public $bookData = [];
+
+    /** @var int */
+    public $nextBookId = 1;
+
     /** @var CopySnapshot[] */
     public $copies = [];
 
@@ -62,9 +68,11 @@ final class InMemoryStore
         $this->nextMemberId = max($this->nextMemberId, $id + 1);
     }
 
-    public function addBook(int $id): void
+    public function addBook(int $id, string $title = 'Libro', string $author = 'Autor'): void
     {
         $this->books[$id] = true;
+        $this->bookData[$id] = ['isbn' => '', 'title' => $title, 'author' => $author, 'year' => null];
+        $this->nextBookId = max($this->nextBookId, $id + 1);
     }
 
     public function addCopy(int $id, int $bookId, string $title, string $status = CopySnapshot::AVAILABLE): void
@@ -129,6 +137,7 @@ final class InMemoryStore
             $this->members, $this->books, $this->copies, $this->loans, $this->reservations,
             $this->nextLoanId, $this->nextReservationId, $this->writes,
             $this->memberData, $this->nextMemberId,
+            $this->bookData, $this->nextBookId,
         ];
     }
 
@@ -137,6 +146,7 @@ final class InMemoryStore
     {
         [$this->members, $this->books, $this->copies, $this->loans, $this->reservations,
             $this->nextLoanId, $this->nextReservationId, $this->writes,
-            $this->memberData, $this->nextMemberId] = $state;
+            $this->memberData, $this->nextMemberId,
+            $this->bookData, $this->nextBookId] = $state;
     }
 }

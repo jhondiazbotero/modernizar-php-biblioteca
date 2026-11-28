@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Library\Bootstrap;
 
 use Library\Application\Authenticate;
+use Library\Application\EditBook;
 use Library\Application\EditMember;
+use Library\Application\RegisterBook;
 use Library\Application\RegisterMember;
 use Library\Auth\PasswordVerifier;
 use Library\Config\DatabaseConfig;
@@ -13,6 +15,7 @@ use Library\Config\MissingConfigurationException;
 use Library\Database\ConnectionFactory;
 use Library\Domain\Clock;
 use Library\Http\Controller\AuthController;
+use Library\Http\Controller\BookController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Controller\MemberController;
 use Library\Http\ErrorPage;
@@ -23,9 +26,11 @@ use Library\Http\Router;
 use Library\Http\Session;
 use Library\Http\View;
 use Library\Infrastructure\Clock\RequestClock;
+use Library\Infrastructure\Persistence\PdoBookRepository;
 use Library\Infrastructure\Persistence\PdoLibrarianRepository;
 use Library\Infrastructure\Persistence\PdoMemberRepository;
 use Library\Infrastructure\Persistence\PdoTransactionManager;
+use Library\Infrastructure\Persistence\Query\PdoBookQuery;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 
@@ -103,6 +108,17 @@ final class Application
                     new RegisterMember($transactions, $members, $clock),
                     new EditMember($transactions, $members),
                     $clock
+                );
+            },
+            BookController::class => function (): BookController {
+                $transactions = new PdoTransactionManager($this->pdo());
+                $books = new PdoBookRepository($this->pdo());
+
+                return new BookController(
+                    $this->pages(),
+                    new PdoBookQuery($this->pdo()),
+                    new RegisterBook($transactions, $books),
+                    new EditBook($transactions, $books)
                 );
             },
             DashboardController::class => function () use ($request): DashboardController {

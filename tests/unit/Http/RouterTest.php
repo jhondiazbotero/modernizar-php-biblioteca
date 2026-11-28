@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Library\Tests\Http;
 
 use Library\Http\Controller\AuthController;
+use Library\Http\Controller\BookController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Controller\MemberController;
 use Library\Http\Request;
@@ -22,6 +23,8 @@ final class RouterTest extends TestCase
         '/socios.php' => [MemberController::class, 'index', true],
         '/socio_editar.php' => [MemberController::class, 'edit', true],
         '/socio_ver.php' => [MemberController::class, 'show', true],
+        '/libros.php' => [BookController::class, 'index', true],
+        '/libro_editar.php' => [BookController::class, 'edit', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];

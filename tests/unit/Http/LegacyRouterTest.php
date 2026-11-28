@@ -15,8 +15,6 @@ final class LegacyRouterTest extends TestCase
         'buscar.php',
         'devolver.php',
         'ejemplares.php',
-        'libro_editar.php',
-        'libros.php',
         'multas.php',
         'prestamos.php',
         'prestar.php',
