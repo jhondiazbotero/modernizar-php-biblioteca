@@ -6,7 +6,7 @@ Una aplicación PHP heredada que se moderniza por fases sin cambiar lo que ve el
 
 Es la aplicación de una biblioteca comunitaria: socios, libros y ejemplares, préstamos con multa por retraso, reservas en cola y búsqueda. Está hecha en PHP 7.4 con MySQL, como se escribían muchas aplicaciones hace años, y este repositorio la moderniza por fases.
 
-> Esta versión es el punto de partida: tiene fallas conocidas que se documentan y corrigen en las siguientes versiones. No la uses en producción.
+> La versión inicial tenía cuatro fallas conocidas; todas están corregidas (ver «Fallas corregidas»). La modernización sigue en curso, así que no la uses en producción todavía.
 
 ## Cómo correrla
 
@@ -33,7 +33,7 @@ Para apagarla y borrar los datos: `docker compose down -v`.
   - `Bootstrap/Application.php`: arma a mano la conexión, el reloj, los repositorios, los casos de uso y los controladores.
   - `Config/`, `Database/`, `Auth/`: configuración por variables de entorno (ADR 0004), conexión PDO (ADR 0005) y verificación de contraseñas (ADR 0006).
 - `templates/`: las plantillas de las pantallas (PHP plano, fuera de `public/`). Todo lo que imprimen pasa por `e()` y una prueba lo comprueba (ADR 0008).
-- `db/`: esquema, datos de ejemplo, creación del bibliotecario `admin` y `migraciones/` para bases que ya existen.
+- `db/`: esquema, datos de ejemplo, creación del bibliotecario `admin`, `migraciones/` para bases que ya existen y `consultas/` (consultas de solo lectura para revisar datos).
 - `docker/` y `docker-compose.yml`: imagen de PHP 7.4 con Apache y `pdo_mysql` (multi-etapa, con `vendor/` de Composer) y base MySQL 8.4.
 - `tests/unit/`, `tests/integration/` y `tests/characterization/`: pruebas unitarias del código nuevo (PHPUnit 9.6, PHP 7.4), pruebas de integración contra MySQL real (PHPUnit 9.6, PHP 7.4) y pruebas de caracterización (PHP 8.4) con sus snapshots.
 - `docs/adr/`: decisiones de arquitectura.
@@ -47,8 +47,8 @@ Para apagarla y borrar los datos: `docker compose down -v`.
 | T2 | Pruebas de caracterización (`v0.1.0`) | hecha |
 | T3 | Composer, PSR-4, front controller y configuración por entorno | hecha |
 | T4 | PDO con consultas preparadas y contraseñas con `password_hash` (`v0.2.0`) | hecha |
-| **T5** | **Dominio y casos de uso con transacciones, controladores y plantillas en todas las pantallas (F4 corregida)** | **esta rama** |
-| T6 | Arreglo de las fallas conocidas | pendiente |
+| T5 | Dominio y casos de uso con transacciones, controladores y plantillas en todas las pantallas (F4 corregida) | hecha |
+| **T6** | **Corrección de F1 (multa) y F2 (cola de reservas) (`v0.3.0`)** | **esta rama** |
 | T7 | PHP 8.4 | pendiente |
 | T8 | Calidad: análisis estático, estilo y mutación | pendiente |
 | T9 | Documentación y métricas | pendiente |
@@ -81,7 +81,7 @@ Si una pantalla cambia de forma intencional, se reescriben los snapshots con `UP
 
 ### Pruebas unitarias
 
-Cubren el código nuevo de `src/` (dominio, casos de uso con repositorios en memoria, reloj, enrutador, controladores con casos de uso y consultas falsos, formato y escape, configuración, conexión y contraseñas, y las pruebas de arquitectura: capas y plantillas) y corren con PHP 7.4, la versión de la aplicación hasta la tarea 7. Son 370 pruebas, 984 aserciones:
+Cubren el código nuevo de `src/` (dominio, casos de uso con repositorios en memoria, reloj, enrutador, controladores con casos de uso y consultas falsos, formato y escape, configuración, conexión y contraseñas, y las pruebas de arquitectura: capas y plantillas) y corren con PHP 7.4, la versión de la aplicación hasta la tarea 7. Son 372 pruebas, 986 aserciones:
 
 ```bash
 bin/unit                      # instala vendor/ con Composer si falta y corre PHPUnit 9.6
@@ -90,7 +90,7 @@ bin/unit --filter FinePolicy
 
 ### Pruebas de integración
 
-Corren los repositorios PDO y las transacciones contra un MySQL real (el del compose, en una base propia que crean y borran) con PHP 7.4. Entre otras cosas, fuerzan un fallo después del primer `UPDATE` de una devolución y comprueban por SQL que no quedó nada a medias. Son 23 pruebas, 142 aserciones:
+Corren los repositorios PDO y las transacciones contra un MySQL real (el del compose, en una base propia que crean y borran) con PHP 7.4. Entre otras cosas, fuerzan un fallo después del primer `UPDATE` de una devolución y comprueban por SQL que no quedó nada a medias. Son 26 pruebas, 159 aserciones:
 
 ```bash
 cp .env.example .env   # y cambia los valores "cambia-esto"
@@ -98,14 +98,22 @@ bin/integration --build
 docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
 ```
 
-## Fallas conocidas
+## Fallas corregidas
 
-La aplicación tuvo cuatro fallas conocidas. Las pruebas de las que siguen abiertas (F1 y F2, grupo `known-defect`) las fijan tal como se comportan hoy y se corrigen en próximas versiones.
+La versión inicial tenía cuatro fallas conocidas, fijadas con pruebas hasta su arreglo. Las cuatro están corregidas:
 
-- **F1, multa mal calculada** (se conserva en `FinePolicy`): si el préstamo vencido se devuelve en otro mes, los días se calculan restando el día del mes y la multa sale 0 o de menos.
-- **F2, cola de reservas** (se conserva en `ReservationQueue`): la siguiente reserva se elige por el nombre del socio y no por orden de llegada, tanto al devolver como al cancelar.
-- **F3, inyección SQL en la búsqueda: corregida en v0.2.0.** `buscar.php` concatenaba el texto en la consulta; `' OR 1=1 -- ` devolvía todo el catálogo y una comilla mostraba el error de MySQL. La corrigió el paso a consultas preparadas con PDO (ADR 0005): el texto se busca tal cual, con `%`, `_` y `\` como texto.
-- **F4, XSS almacenado: corregida (en la próxima versión).** `socios.php` mostraba el nombre del socio sin escapar. Ahora todas las pantallas se arman con plantillas que escapan todo lo que imprimen (ADR 0008) y una prueba falla si una plantilla imprime una variable sin `e()`.
+- **F1, multa mal calculada: corregida en v0.3.0 (ADR 0009).** Los días de retraso se calculaban restando el día del mes, así que un préstamo devuelto en otro mes pagaba de menos o nada. Ahora son los días calendario entre el vencimiento y la devolución. Las multas ya cobradas no se recalculan solas: `db/consultas/multas-cruce-de-mes.sql` lista las que no coinciden con la regla correcta para revisarlas una por una.
+- **F2, cola de reservas: corregida en v0.3.0 (ADR 0010).** La siguiente reserva se elegía por el nombre del socio. Ahora es la que llegó primero (por id si coinciden), al devolver y al cancelar. Las asignaciones ya hechas no se reasignan.
+- **F3, inyección SQL en la búsqueda: corregida en v0.2.0 (ADR 0005).** `buscar.php` concatenaba el texto en la consulta; `' OR 1=1 -- ` devolvía todo el catálogo y una comilla mostraba el error de MySQL. Con consultas preparadas el texto se busca tal cual, con `%`, `_` y `\` como texto.
+- **F4, XSS almacenado: corregida en v0.3.0 (ADR 0008).** `socios.php` mostraba el nombre del socio sin escapar. Ahora todas las pantallas se arman con plantillas que escapan todo lo que imprimen y una prueba falla si una plantilla imprime una variable sin `e()`.
+
+### Revisar las multas ya cobradas
+
+Para ver qué préstamos devueltos con retraso tienen guardada una multa distinta de la correcta (id, socio, vencimiento, devolución, multa guardada y multa correcta), sin modificar nada:
+
+```bash
+docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' < db/consultas/multas-cruce-de-mes.sql
+```
 
 ## Actualizar una base que ya existe
 

@@ -52,8 +52,7 @@ final class CancelReservationTest extends UseCaseTestCase
         self::assertSame(['reservations.cancel', 'copies.updateStatus'], $this->store->writes);
     }
 
-    /** Current behavior, known defect F2: the copy goes to the first name, not to the first to arrive. */
-    public function test_f2_the_copy_goes_to_the_first_name_in_alphabetical_order(): void
+    public function test_the_copy_goes_to_the_reservation_that_arrived_first(): void
     {
         $this->store->addReservation(7, 5, 1, ReservationSnapshot::ASSIGNED, 10);
         $this->store->addReservation(8, 5, 2, ReservationSnapshot::PENDING, null, '2026-11-01 08:00:00');
@@ -61,10 +60,10 @@ final class CancelReservationTest extends UseCaseTestCase
 
         $result = $this->useCase()->handle(7);
 
-        self::assertSame('Álvaro Segundo', $result->getAssignedMemberName());
-        self::assertSame(ReservationSnapshot::ASSIGNED, $this->store->reservations[9]['status']);
-        self::assertSame(10, $this->store->reservations[9]['copyId']);
-        self::assertSame(ReservationSnapshot::PENDING, $this->store->reservations[8]['status']);
+        self::assertSame('Zoe Primera', $result->getAssignedMemberName());
+        self::assertSame(ReservationSnapshot::ASSIGNED, $this->store->reservations[8]['status']);
+        self::assertSame(10, $this->store->reservations[8]['copyId']);
+        self::assertSame(ReservationSnapshot::PENDING, $this->store->reservations[9]['status']);
         self::assertSame(CopySnapshot::RESERVED, $this->store->copyStatus(10));
         self::assertSame(['reservations.cancel', 'reservations.assign', 'copies.updateStatus'], $this->store->writes);
     }

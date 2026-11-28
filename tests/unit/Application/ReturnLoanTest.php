@@ -60,32 +60,34 @@ final class ReturnLoanTest extends UseCaseTestCase
         self::assertSame(['loans.markReturned', 'copies.updateStatus'], $this->store->writes);
     }
 
-    /** Current behavior, known defect F1: a loan that crosses a month with a smaller day is not fined. */
-    public function test_f1_crossing_a_month_with_a_smaller_day_has_no_fine(): void
+    public function test_crossing_a_month_charges_the_real_days_late(): void
     {
+        // due 31 October, returned 27 November: 27 calendar days late
         $this->store->addLoan(1, 10, 1, '2026-10-31');
 
-        self::assertSame(0, $this->useCase()->handle(1)->getFine());
+        $result = $this->useCase()->handle(1);
+
+        self::assertSame(13500, $result->getFine());
+        self::assertSame(13500, $this->store->loans[1]['fine']);
     }
 
-    /** Current behavior, known defect F2: the copy goes to the first name, not to the first to arrive. */
-    public function test_f2_the_copy_is_given_to_the_first_name_in_alphabetical_order(): void
+    public function test_the_copy_is_given_to_the_reservation_that_arrived_first(): void
     {
         $this->store->addLoan(1, 10, 1, '2026-12-01');
         $this->store->addMember(2, 'Zoe Primera');
         $this->store->addMember(3, 'Álvaro Segundo');
         $this->store->addMember(4, 'Andrés Tercero');
-        $this->store->addReservation(7, 5, 2, ReservationSnapshot::PENDING, null, '2026-11-01 08:00:00');
-        $this->store->addReservation(8, 5, 4, ReservationSnapshot::PENDING, null, '2026-11-02 08:00:00');
-        $this->store->addReservation(9, 5, 3, ReservationSnapshot::PENDING, null, '2026-11-03 08:00:00');
+        $this->store->addReservation(7, 5, 2, ReservationSnapshot::PENDING, null, '2026-11-03 08:00:00');
+        $this->store->addReservation(8, 5, 4, ReservationSnapshot::PENDING, null, '2026-11-01 08:00:00');
+        $this->store->addReservation(9, 5, 3, ReservationSnapshot::PENDING, null, '2026-11-02 08:00:00');
 
         $result = $this->useCase()->handle(1);
 
-        self::assertSame('Álvaro Segundo', $result->getAssignedMemberName());
-        self::assertSame(ReservationSnapshot::ASSIGNED, $this->store->reservations[9]['status']);
-        self::assertSame(10, $this->store->reservations[9]['copyId']);
+        self::assertSame('Andrés Tercero', $result->getAssignedMemberName());
+        self::assertSame(ReservationSnapshot::ASSIGNED, $this->store->reservations[8]['status']);
+        self::assertSame(10, $this->store->reservations[8]['copyId']);
         self::assertSame(ReservationSnapshot::PENDING, $this->store->reservations[7]['status']);
-        self::assertSame(ReservationSnapshot::PENDING, $this->store->reservations[8]['status']);
+        self::assertSame(ReservationSnapshot::PENDING, $this->store->reservations[9]['status']);
         self::assertSame(CopySnapshot::RESERVED, $this->store->copyStatus(10));
         self::assertSame(['loans.markReturned', 'reservations.assign', 'copies.updateStatus'], $this->store->writes);
     }

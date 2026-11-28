@@ -7,9 +7,10 @@ namespace Library\Domain;
 final class ReservationQueue
 {
     /**
-     * @param PendingReservation[] $pending
+     * The next reservation is the one made first (oldest `reservedAt`); on the same
+     * moment, the one with the lowest id.
      *
-     * Current behavior, including known defect F2 (queue ordered by member name).
+     * @param PendingReservation[] $pending
      */
     public function next(array $pending): ?PendingReservation
     {
@@ -25,8 +26,10 @@ final class ReservationQueue
 
     private function comesBefore(PendingReservation $a, PendingReservation $b): bool
     {
-        $byName = NameCollation::compare($a->getMemberName(), $b->getMemberName());
+        if ($a->getReservedAt() != $b->getReservedAt()) {
+            return $a->getReservedAt() < $b->getReservedAt();
+        }
 
-        return $byName !== 0 ? $byName < 0 : $a->getId() < $b->getId();
+        return $a->getId() < $b->getId();
     }
 }

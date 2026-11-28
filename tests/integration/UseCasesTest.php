@@ -85,11 +85,11 @@ final class UseCasesTest extends DatabaseTestCase
         $result = $this->cancelReservation()->handle(7);
 
         self::assertTrue($result->hadCopy());
-        self::assertSame('Álvaro Segundo', $result->getAssignedMemberName());
+        self::assertSame('Zoe Primera', $result->getAssignedMemberName());
         self::assertSame('cancelada', $this->scalar('SELECT estado FROM reservas WHERE id = 7'));
-        self::assertSame('asignada', $this->scalar('SELECT estado FROM reservas WHERE id = 9'));
-        self::assertEquals(11, $this->scalar('SELECT ejemplar_id FROM reservas WHERE id = 9'));
-        self::assertSame('pendiente', $this->scalar('SELECT estado FROM reservas WHERE id = 8'));
+        self::assertSame('asignada', $this->scalar('SELECT estado FROM reservas WHERE id = 8'));
+        self::assertEquals(11, $this->scalar('SELECT ejemplar_id FROM reservas WHERE id = 8'));
+        self::assertSame('pendiente', $this->scalar('SELECT estado FROM reservas WHERE id = 9'));
         self::assertSame('reservado', $this->scalar('SELECT estado FROM ejemplares WHERE id = 11'));
 
         self::assertSame('not_cancellable', $this->cancelReservation()->handle(7)->getErrorCode());

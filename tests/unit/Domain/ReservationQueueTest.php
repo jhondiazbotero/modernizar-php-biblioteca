@@ -33,8 +33,7 @@ final class ReservationQueueTest extends TestCase
         self::assertSame(7, $this->nextId([$this->pending(7, 'Zoe')]));
     }
 
-    /** Current behavior, including known defect F2: queue ordered by member name. */
-    public function test_f2_the_first_name_in_alphabetical_order_wins_even_if_it_arrived_last(): void
+    public function test_the_oldest_reservation_wins_even_if_its_name_comes_last(): void
     {
         $pending = [
             $this->pending(1, 'Marta Pérez', '2026-11-01 08:00:00'),
@@ -42,64 +41,58 @@ final class ReservationQueueTest extends TestCase
             $this->pending(3, 'Carlos Ruiz', '2026-11-05 08:00:00'),
         ];
 
+        self::assertSame(1, $this->nextId($pending));
+    }
+
+    public function test_the_oldest_reservation_wins_even_if_it_has_the_highest_id(): void
+    {
+        $pending = [
+            $this->pending(1, 'Ana', '2026-11-12 08:00:00'),
+            $this->pending(2, 'Beatriz', '2026-11-10 08:00:00'),
+            $this->pending(3, 'Carlos', '2026-11-03 08:00:00'),
+        ];
+
+        self::assertSame(3, $this->nextId($pending));
+    }
+
+    public function test_the_time_of_the_day_decides_between_reservations_of_the_same_day(): void
+    {
+        $pending = [
+            $this->pending(1, 'Ana', '2026-11-10 16:40:00'),
+            $this->pending(2, 'Beatriz', '2026-11-10 09:15:00'),
+        ];
+
         self::assertSame(2, $this->nextId($pending));
     }
 
     public function test_the_order_of_the_list_does_not_matter(): void
     {
-        $a = $this->pending(1, 'Diana');
-        $b = $this->pending(2, 'Ana');
-        $c = $this->pending(3, 'Camila');
+        $a = $this->pending(1, 'Diana', '2026-11-03 08:00:00');
+        $b = $this->pending(2, 'Ana', '2026-11-01 08:00:00');
+        $c = $this->pending(3, 'Camila', '2026-11-02 08:00:00');
 
         self::assertSame(2, $this->nextId([$a, $b, $c]));
         self::assertSame(2, $this->nextId([$c, $b, $a]));
         self::assertSame(2, $this->nextId([$b, $c, $a]));
+        self::assertSame(2, $this->nextId([$c, $a, $b]));
     }
 
-    public function test_an_accent_does_not_change_the_order_like_in_mysql(): void
+    public function test_the_same_moment_goes_to_the_lowest_id_whatever_the_position_in_the_list(): void
     {
-        // «Álvaro» < «Andrés» because «l» < «n»; the accent on the first letter is ignored
-        self::assertSame(2, $this->nextId([$this->pending(1, 'Andrés'), $this->pending(2, 'Álvaro')]));
-        self::assertSame(2, $this->nextId([$this->pending(2, 'Álvaro'), $this->pending(1, 'Andrés')]));
+        $at = '2026-11-10 09:00:00';
+
+        self::assertSame(3, $this->nextId([$this->pending(5, 'Zoe', $at), $this->pending(3, 'Beatriz', $at), $this->pending(4, 'Ana', $at)]));
+        self::assertSame(3, $this->nextId([$this->pending(3, 'Beatriz', $at), $this->pending(5, 'Ana', $at)]));
     }
 
-    public function test_upper_and_lower_case_are_equal_so_the_lowest_id_wins(): void
+    public function test_the_same_moment_for_a_later_id_does_not_beat_an_earlier_moment(): void
     {
-        // «Andrés» = «andrés»: tie, the lower id wins whatever the position in the list
-        self::assertSame(3, $this->nextId([$this->pending(5, 'andrés'), $this->pending(3, 'Andrés'), $this->pending(4, 'ANDRÉS')]));
-        self::assertSame(3, $this->nextId([$this->pending(3, 'Andrés'), $this->pending(5, 'andrés')]));
-    }
+        $pending = [
+            $this->pending(1, 'Ana', '2026-11-10 09:00:01'),
+            $this->pending(9, 'Zoe', '2026-11-10 09:00:00'),
+        ];
 
-    public function test_álvaro_andrés_and_andrés_in_lowercase_follow_the_mysql_order(): void
-    {
-        $alvaro = $this->pending(30, 'Álvaro');
-        $andres = $this->pending(20, 'Andrés');
-        $andresLower = $this->pending(10, 'andrés');
-
-        self::assertSame(30, $this->nextId([$andresLower, $andres, $alvaro]));
-        // without «Álvaro»: «Andrés» and «andrés» are equal and the lower id wins
-        self::assertSame(10, $this->nextId([$andres, $andresLower]));
-    }
-
-    public function test_the_tie_between_the_same_name_in_different_case_goes_to_the_lower_id(): void
-    {
-        self::assertSame(10, $this->nextId([$this->pending(20, 'Andrés'), $this->pending(10, 'andrés')]));
-    }
-
-    public function test_n_with_tilde_sorts_as_n_like_utf8mb4_unicode_ci(): void
-    {
-        // «Muñoz» between «Munera» and «Murillo» ignoring the tilde: «muñoz» < «murillo»
-        self::assertSame(2, $this->nextId([$this->pending(1, 'Murillo'), $this->pending(2, 'Muñoz')]));
-    }
-
-    public function test_trailing_spaces_are_ignored_like_in_mysql(): void
-    {
-        self::assertSame(1, $this->nextId([$this->pending(2, 'Ana  '), $this->pending(1, 'ana')]));
-    }
-
-    public function test_a_prefix_comes_before_the_longer_name(): void
-    {
-        self::assertSame(2, $this->nextId([$this->pending(1, 'Ana María'), $this->pending(2, 'Ana')]));
+        self::assertSame(9, $this->nextId($pending));
     }
 
     public function test_a_pending_reservation_exposes_its_data(): void

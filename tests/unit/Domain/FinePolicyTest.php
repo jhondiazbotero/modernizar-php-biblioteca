@@ -55,30 +55,62 @@ final class FinePolicyTest extends TestCase
         );
     }
 
-    /** Current behavior, including known defect F1: crossing a month with a smaller day gives 0. */
-    public function test_f1_crossing_a_month_with_a_smaller_day_gives_zero(): void
+    public function test_crossing_a_month_with_a_smaller_day_charges_the_real_days_late(): void
     {
-        // due 28 March, returned 3 April: six days late, the day of month difference is negative
-        self::assertSame(0, $this->fine('2026-03-28', '2026-04-03'));
+        // due 28 March, returned 3 April: six calendar days late
+        self::assertSame(3000, $this->fine('2026-03-28', '2026-04-03'));
     }
 
-    /** Current behavior, including known defect F1: crossing a month with a bigger day charges the difference only. */
-    public function test_f1_crossing_a_month_with_a_bigger_day_charges_the_difference_of_days(): void
+    public function test_crossing_a_month_with_a_bigger_day_charges_the_real_days_late(): void
     {
-        // due 10 October, returned 27 November: 48 days late, charged as 27 - 10 = 17 days
-        self::assertSame(8500, $this->fine('2026-10-10', '2026-11-27'));
+        // due 10 October, returned 27 November: 48 calendar days late
+        self::assertSame(24000, $this->fine('2026-10-10', '2026-11-27'));
     }
 
-    /** Current behavior, including known defect F1: 31 December to 2 January. */
-    public function test_f1_across_the_new_year_from_31_december_gives_zero(): void
+    public function test_across_the_new_year_from_31_december_charges_two_days(): void
     {
-        self::assertSame(0, $this->fine('2026-12-31', '2027-01-02'));
+        self::assertSame(1000, $this->fine('2026-12-31', '2027-01-02'));
     }
 
-    /** Current behavior, including known defect F1: the same day number in another month charges nothing. */
-    public function test_f1_the_same_day_number_in_the_next_month_gives_zero(): void
+    public function test_the_same_day_number_in_the_next_month_charges_the_days_of_the_month(): void
     {
-        self::assertSame(0, $this->fine('2026-10-31', '2026-11-30'));
+        // due 31 October, returned 30 November: 30 days late
+        self::assertSame(15000, $this->fine('2026-10-31', '2026-11-30'));
+    }
+
+    public function test_the_end_of_january_to_the_start_of_march_in_a_common_year_is_29_days(): void
+    {
+        self::assertSame(14500, $this->fine('2026-01-31', '2026-03-01'));
+    }
+
+    public function test_the_end_of_february_to_the_start_of_march_in_a_leap_year_is_2_days(): void
+    {
+        self::assertSame(1000, $this->fine('2028-02-28', '2028-03-01'));
+    }
+
+    public function test_a_loan_due_on_16_november_returned_on_12_december_is_26_days_late(): void
+    {
+        self::assertSame(13000, $this->fine('2026-11-16', '2026-12-12'));
+    }
+
+    public function test_spring_forward_in_a_zone_with_daylight_saving_does_not_lose_a_day(): void
+    {
+        $zone = new \DateTimeZone('America/New_York');
+
+        self::assertSame(
+            3000,
+            (new FinePolicy())->fineFor(new \DateTimeImmutable('2026-03-06 20:00:00', $zone), new \DateTimeImmutable('2026-03-12 07:00:00', $zone))
+        );
+    }
+
+    public function test_the_end_of_daylight_saving_does_not_add_a_day(): void
+    {
+        $zone = new \DateTimeZone('America/New_York');
+
+        self::assertSame(
+            1500,
+            (new FinePolicy())->fineFor(new \DateTimeImmutable('2026-10-30 23:30:00', $zone), new \DateTimeImmutable('2026-11-02 00:30:00', $zone))
+        );
     }
 
     public function test_leap_day_due_date_late_by_one_day_in_the_same_month(): void
@@ -86,10 +118,9 @@ final class FinePolicyTest extends TestCase
         self::assertSame(500, $this->fine('2028-02-28', '2028-02-29'));
     }
 
-    /** Current behavior, including known defect F1: due on 29 February, returned on 2 March. */
-    public function test_f1_leap_day_to_the_start_of_march_gives_zero(): void
+    public function test_leap_day_due_date_returned_on_2_march_is_2_days_late(): void
     {
-        self::assertSame(0, $this->fine('2028-02-29', '2028-03-02'));
+        self::assertSame(1000, $this->fine('2028-02-29', '2028-03-02'));
     }
 
     public function test_the_result_is_always_an_integer_number_of_pesos(): void
