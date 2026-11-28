@@ -1,6 +1,6 @@
 # 0004. Composer y front controller
 
-Estado: aceptada
+Estado: aceptada. Reemplazado por ADR 0008 en lo que toca al enrutador heredado, a `legacy/` y al `chdir`.
 
 ## Contexto
 
@@ -20,5 +20,5 @@ La aplicación heredada son archivos sueltos que Apache sirve directamente: cada
 
 - Las URLs y las pantallas no cambian: las pruebas de caracterización pasan sin tocar un snapshot. Lo único nuevo que se observa es el 404 con página propia para lo que no es una pantalla.
 - Agregar una pantalla heredada exige agregarla a la lista; es incómodo, y es lo buscado: así no se abre una ruta sin querer.
-- El `chdir` es un estado global; se quita cuando las pantallas pasen a controladores en la tarea 5.
+- El `chdir` es un estado global del que dependían las pantallas heredadas; desapareció con `legacy/` y `LegacyRouter` al pasar todas las pantallas a controladores (ADR 0008).
 - La imagen de Docker se construye en dos etapas (dependencias de Composer y aplicación) y en desarrollo se montan `public/`, `legacy/` y `src/` por separado para no tapar `vendor/`.

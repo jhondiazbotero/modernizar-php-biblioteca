@@ -26,7 +26,7 @@ jobs:
       - name: Sintaxis de todos los PHP
         run: |
           docker run --rm -v "$PWD:/app:ro" -w /app php:7.4.33-apache \
-            sh -c 'find public legacy src -name "*.php" -print0 | xargs -0 -n1 php -l'
+            sh -c 'find public src templates -name "*.php" -print0 | xargs -0 -n1 php -l'
 
       - name: Preparar variables de entorno
         run: |
@@ -105,6 +105,28 @@ jobs:
           name: pantallas-distintas
           path: tests/characterization/snapshots/_actual
           if-no-files-found: ignore
+
+      - name: Apagar
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar variables de entorno
+        run: |
+          cp .env.example .env
+          sed -i 's/cambia-esto/clave-de-prueba-ci/' .env
+
+      - name: Pruebas de integración con MySQL
+        run: bin/integration --build
+
+      - name: Registros si algo falló
+        if: failure()
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml logs db
 
       - name: Apagar
         if: always()

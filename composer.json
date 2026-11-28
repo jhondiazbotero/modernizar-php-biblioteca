@@ -14,11 +14,15 @@
     "autoload": {
         "psr-4": {
             "Library\\": "src/"
-        }
+        },
+        "files": [
+            "src/Http/escape.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Library\\Tests\\": "tests/unit/"
+            "Library\\Tests\\": "tests/unit/",
+            "Library\\Tests\\Integration\\": "tests/integration/"
         }
     },
     "config": {
