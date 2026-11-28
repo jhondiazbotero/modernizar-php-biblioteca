@@ -10,7 +10,7 @@ use Library\Domain\ReservationSnapshot;
 
 /**
  * The "database" shared by the in-memory repositories. Every write must happen
- * inside a transaction and can be made to fail on purpose.
+ * inside a transaction and can be told to fail at a given write.
  */
 final class InMemoryStore
 {
