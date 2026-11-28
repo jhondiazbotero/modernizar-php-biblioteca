@@ -7,10 +7,10 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-    $documento = mysqli_real_escape_string($con, trim(isset($_POST['documento']) ? $_POST['documento'] : ''));
-    $nombre = mysqli_real_escape_string($con, trim(isset($_POST['nombre']) ? $_POST['nombre'] : ''));
-    $correo = mysqli_real_escape_string($con, trim(isset($_POST['correo']) ? $_POST['correo'] : ''));
-    $telefono = mysqli_real_escape_string($con, trim(isset($_POST['telefono']) ? $_POST['telefono'] : ''));
+    $documento = trim(isset($_POST['documento']) ? $_POST['documento'] : '');
+    $nombre = trim(isset($_POST['nombre']) ? $_POST['nombre'] : '');
+    $correo = trim(isset($_POST['correo']) ? $_POST['correo'] : '');
+    $telefono = trim(isset($_POST['telefono']) ? $_POST['telefono'] : '');
     $activo = isset($_POST['activo']) ? 1 : 0;
 
     if ($documento == '' || $nombre == '') {
@@ -18,28 +18,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // el documento no se puede repetir
-    $r = mysqli_query($con, "SELECT id FROM socios WHERE documento = '$documento' AND id <> $id");
-    if (mysqli_num_rows($r) > 0) {
+    $consulta = $db->prepare('SELECT id FROM socios WHERE documento = ? AND id <> ?');
+    $consulta->execute(array($documento, $id));
+    if ($consulta->fetch()) {
         redirigir('socio_editar.php' . ($id ? '?id=' . $id : ''), 'Ya existe un socio con ese documento.', 'error');
     }
 
     if ($id) {
-        mysqli_query($con, "UPDATE socios SET documento = '$documento', nombre = '$nombre', correo = '$correo', telefono = '$telefono', activo = $activo WHERE id = $id");
+        $consulta = $db->prepare('UPDATE socios SET documento = ?, nombre = ?, correo = ?, telefono = ?, activo = ? WHERE id = ?');
+        $consulta->execute(array($documento, $nombre, $correo, $telefono, $activo, $id));
         redirigir('socios.php', 'Socio actualizado.');
     } else {
         $hoy = hoy();
-        mysqli_query($con, "INSERT INTO socios (documento, nombre, correo, telefono, fecha_alta, activo) VALUES ('$documento', '$nombre', '$correo', '$telefono', '$hoy', $activo)");
+        $consulta = $db->prepare('INSERT INTO socios (documento, nombre, correo, telefono, fecha_alta, activo) VALUES (?, ?, ?, ?, ?, ?)');
+        $consulta->execute(array($documento, $nombre, $correo, $telefono, $hoy, $activo));
         redirigir('socios.php', 'Socio registrado.');
     }
 }
 
 $socio = array('id' => 0, 'documento' => '', 'nombre' => '', 'correo' => '', 'telefono' => '', 'activo' => 1);
 if ($id) {
-    $r = mysqli_query($con, "SELECT * FROM socios WHERE id = $id");
-    if (mysqli_num_rows($r) == 0) {
+    $consulta = $db->prepare('SELECT * FROM socios WHERE id = ?');
+    $consulta->execute(array($id));
+    $socio = $consulta->fetch();
+    if (!$socio) {
         redirigir('socios.php', 'El socio no existe.', 'error');
     }
-    $socio = mysqli_fetch_assoc($r);
 }
 
 $titulo = $id ? 'Editar socio' : 'Nuevo socio';
