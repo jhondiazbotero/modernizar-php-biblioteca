@@ -26,7 +26,7 @@ jobs:
       - name: Sintaxis de todos los PHP
         run: |
           docker run --rm -v "$PWD:/app:ro" -w /app php:7.4.33-apache \
-            sh -c 'find public legacy src -name "*.php" -print0 | xargs -0 -n1 php -l'
+            sh -c 'find public legacy src templates -name "*.php" -print0 | xargs -0 -n1 php -l'
 
       - name: Preparar variables de entorno
         run: |

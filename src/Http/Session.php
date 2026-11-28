@@ -10,6 +10,10 @@ namespace Library\Http;
  */
 final class Session
 {
+    /** Keys under which the signed-in librarian is remembered. */
+    public const LIBRARIAN_ID = 'bibliotecario_id';
+    public const LIBRARIAN_NAME = 'bibliotecario_nombre';
+
     /** @var bool */
     private $native;
 
@@ -58,6 +62,12 @@ final class Session
     public function get(string $key, $default = null)
     {
         return $this->data[$key] ?? $default;
+    }
+
+    /** Whether a librarian has signed in. */
+    public function isAuthenticated(): bool
+    {
+        return !empty($this->data[self::LIBRARIAN_ID]);
     }
 
     public function has(string $key): bool

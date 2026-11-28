@@ -15,7 +15,6 @@ final class LegacyRouterTest extends TestCase
         'buscar.php',
         'devolver.php',
         'ejemplares.php',
-        'index.php',
         'libro_editar.php',
         'libros.php',
         'login.php',
@@ -50,23 +49,11 @@ final class LegacyRouterTest extends TestCase
         self::assertSame(self::LEGACY_DIR . '/' . $screen, $router->resolve('/' . $screen));
     }
 
-    public function test_there_are_exactly_fifteen_screens(): void
-    {
-        self::assertCount(15, self::SCREENS);
-    }
-
-    public function test_root_resolves_to_the_dashboard(): void
-    {
-        $router = new LegacyRouter(self::LEGACY_DIR);
-
-        self::assertSame(self::LEGACY_DIR . '/index.php', $router->resolve('/'));
-    }
-
     public function test_a_trailing_slash_in_the_legacy_directory_is_ignored(): void
     {
         $router = new LegacyRouter(self::LEGACY_DIR . '/');
 
-        self::assertSame(self::LEGACY_DIR . '/socios.php', $router->resolve('/socios.php'));
+        self::assertSame(self::LEGACY_DIR . '/buscar.php', $router->resolve('/buscar.php'));
     }
 
     /** @return array<string, array{?string}> */
@@ -74,6 +61,8 @@ final class LegacyRouterTest extends TestCase
     {
         return [
             'unknown screen' => ['/no-existe.php'],
+            'screen that already has a controller' => ['/index.php'],
+            'root that already has a controller' => ['/'],
             'parent directory' => ['/../legacy/login.php'],
             'parent directory inside the path' => ['/css/../socios.php'],
             'encoded parent directory' => ['/%2e%2e/legacy/login.php'],

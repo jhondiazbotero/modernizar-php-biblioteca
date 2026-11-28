@@ -2,15 +2,24 @@
 
 declare(strict_types=1);
 
+use Library\Bootstrap\Application;
 use Library\Config\MissingConfigurationException;
 use Library\Http\ErrorPage;
 use Library\Http\LegacyRouter;
+use Library\Http\Request;
+use Library\Http\Router;
 
 $frontRoot = dirname(__DIR__);
 require $frontRoot . '/vendor/autoload.php';
 
-$frontPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$frontFile = (new LegacyRouter($frontRoot . '/legacy'))->resolve(is_string($frontPath) ? $frontPath : null);
+$frontRequest = Request::fromGlobals();
+if (Router::handles($frontRequest->getPath())) {
+    Application::handle($frontRequest)->send();
+
+    return;
+}
+
+$frontFile = (new LegacyRouter($frontRoot . '/legacy'))->resolve($frontRequest->getPath());
 
 if ($frontFile === null) {
     http_response_code(404);
@@ -23,7 +32,7 @@ chdir(dirname($frontFile));
 
 // The screen runs in this scope: do not leave it variables that are not its own.
 // $frontFile stays because the screen is included from it.
-unset($frontRoot, $frontPath);
+unset($frontRoot, $frontRequest);
 
 try {
     require $frontFile;
