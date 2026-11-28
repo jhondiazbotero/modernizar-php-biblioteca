@@ -1,27 +1,18 @@
 <?php
 include 'includes/conexion.php';
 include 'includes/funciones.php';
+include 'includes/servicios.php';
+include 'includes/mensajes.php';
 verificar_sesion();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $prestamo_id = isset($_POST['prestamo_id']) ? (int)$_POST['prestamo_id'] : 0;
 
-    $consulta = $db->prepare('SELECT multa, multa_pagada FROM prestamos WHERE id = ?');
-    $consulta->execute(array($prestamo_id));
-    $p = $consulta->fetch();
-    if (!$p) {
-        redirigir('multas.php', 'El préstamo no existe.', 'error');
+    $resultado = servicios()['pagar_multa']->handle($prestamo_id);
+    if (!$resultado->isSuccess()) {
+        redirigir('multas.php', mensaje_error('multas', $resultado->getErrorCode()), 'error');
     }
-    if ($p['multa'] <= 0) {
-        redirigir('multas.php', 'Ese préstamo no tiene multa.', 'error');
-    }
-    if ($p['multa_pagada']) {
-        redirigir('multas.php', 'Esa multa ya estaba pagada.', 'error');
-    }
-
-    $consulta = $db->prepare('UPDATE prestamos SET multa_pagada = 1 WHERE id = ?');
-    $consulta->execute(array($prestamo_id));
-    redirigir('multas.php', 'Multa pagada: ' . formato_moneda($p['multa']) . '.');
+    redirigir('multas.php', 'Multa pagada: ' . formato_moneda($resultado->getAmount()) . '.');
 }
 
 $multas = $db->query("SELECT p.*, s.nombre AS socio, l.titulo, e.codigo
