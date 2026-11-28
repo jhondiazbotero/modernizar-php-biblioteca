@@ -15,7 +15,6 @@ final class LegacyRouter
 {
     /** URL path => file inside the legacy directory. */
     private const SCREENS = [
-        '/multas.php' => 'multas.php',
         '/buscar.php' => 'buscar.php',
     ];
 

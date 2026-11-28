@@ -8,6 +8,7 @@ use Library\Http\Controller\AuthController;
 use Library\Http\Controller\BookController;
 use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\FineController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 use Library\Http\Controller\ReservationController;
@@ -33,6 +34,7 @@ final class RouterTest extends TestCase
         '/devolver.php' => [LoanController::class, 'giveBack', true],
         '/prestamos.php' => [LoanController::class, 'index', true],
         '/reservas.php' => [ReservationController::class, 'index', true],
+        '/multas.php' => [FineController::class, 'index', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];

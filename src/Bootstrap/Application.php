@@ -9,6 +9,7 @@ use Library\Application\Authenticate;
 use Library\Application\EditBook;
 use Library\Application\CancelReservation;
 use Library\Application\LendCopy;
+use Library\Application\PayFine;
 use Library\Application\PlaceReservation;
 use Library\Application\EditMember;
 use Library\Application\RegisterBook;
@@ -26,6 +27,7 @@ use Library\Http\Controller\AuthController;
 use Library\Http\Controller\BookController;
 use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
+use Library\Http\Controller\FineController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
 use Library\Http\Controller\ReservationController;
@@ -47,6 +49,7 @@ use Library\Infrastructure\Persistence\PdoTransactionManager;
 use Library\Infrastructure\Persistence\Query\PdoBookQuery;
 use Library\Infrastructure\Persistence\Query\PdoCopyQuery;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
+use Library\Infrastructure\Persistence\Query\PdoFineQuery;
 use Library\Infrastructure\Persistence\Query\PdoLoanQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 use Library\Infrastructure\Persistence\Query\PdoReservationQuery;
@@ -113,6 +116,13 @@ final class Application
         return [
             AuthController::class => function (): AuthController {
                 return new AuthController($this->pages(), new Authenticate(new PdoLibrarianRepository($this->pdo()), new PasswordVerifier()));
+            },
+            FineController::class => function (): FineController {
+                return new FineController(
+                    $this->pages(),
+                    new PdoFineQuery($this->pdo()),
+                    new PayFine(new PdoTransactionManager($this->pdo()), new PdoLoanRepository($this->pdo()))
+                );
             },
             LoanController::class => function () use ($request): LoanController {
                 $clock = $this->clock($request);
