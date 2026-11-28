@@ -79,30 +79,22 @@ final class ReturnsAndFinesTest extends CharacterizationTestCase
         self::assertContains('$ 13.000 (pendiente)', array_column($member->tableRows(1), 5));
     }
 
-    /**
-     * Current behavior (known defect F1): a loan returned in a later month than its due date gets a fine of 0 when the day of the month went down.
-     */
-    #[Group('known-defect')]
-    public function test_f1_late_return_in_the_next_month_has_no_fine(): void
+    public function test_late_return_in_the_next_month_charges_the_real_days_late(): void
     {
-        // Due 2026-11-16, returned 2026-12-12: 26 days late, 12 - 16 < 0.
+        // Due 2026-11-16, returned 2026-12-12: 26 days late.
         $response = $this->returnLoan(8, '2026-12-12');
 
-        $this->assertMessage('ok', 'Devolución registrada: Rimas y leyendas de Paula Jiménez Arango.', $response);
-        self::assertSame(0, (int) $this->loan(8)['multa']);
+        $this->assertMessage('ok', 'Devolución registrada: Rimas y leyendas de Paula Jiménez Arango. Multa por retraso: $ 13.000.', $response);
+        self::assertSame(13000, (int) $this->loan(8)['multa']);
     }
 
-    /**
-     * Current behavior (known defect F1): a loan returned in a later month is charged only the difference of the days of the month.
-     */
-    #[Group('known-defect')]
-    public function test_f1_late_return_in_the_next_month_is_charged_the_day_difference_only(): void
+    public function test_late_return_two_months_after_the_due_date_charges_every_day(): void
     {
-        // Due 2026-11-09, returned 2026-12-20: 41 days late, but 20 - 9 = 11 days are charged.
+        // Due 2026-11-09, returned 2026-12-20: 41 days late.
         $response = $this->returnLoan(5, '2026-12-20');
 
-        $this->assertMessage('ok', 'Devolución registrada: Azul… de Diego Castillo Mora. Multa por retraso: $ 5.500.', $response);
-        self::assertSame(5500, (int) $this->loan(5)['multa']);
+        $this->assertMessage('ok', 'Devolución registrada: Azul… de Diego Castillo Mora. Multa por retraso: $ 20.500.', $response);
+        self::assertSame(20500, (int) $this->loan(5)['multa']);
     }
 
     public function test_return_when_the_book_has_a_reservation_queue_keeps_the_copy_reserved(): void

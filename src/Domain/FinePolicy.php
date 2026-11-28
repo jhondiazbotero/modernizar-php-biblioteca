@@ -6,7 +6,11 @@ namespace Library\Domain;
 
 final class FinePolicy
 {
-    /** Current behavior, including known defect F1 (days counted by day of month). */
+    /**
+     * Calendar days between the due date and the return date, times the fine per day;
+     * nothing when the loan comes back on the due date or before. Both dates are taken
+     * at midnight, so the time of day does not count.
+     */
     public function fineFor(\DateTimeImmutable $dueDate, \DateTimeImmutable $returnedOn): int
     {
         $due = $dueDate->setTime(0, 0, 0);
@@ -15,8 +19,6 @@ final class FinePolicy
             return 0;
         }
 
-        $days = (int) $returned->format('j') - (int) $due->format('j');
-
-        return $days < 0 ? 0 : $days * LendingRules::FINE_PER_DAY;
+        return (int) $due->diff($returned)->days * LendingRules::FINE_PER_DAY;
     }
 }
