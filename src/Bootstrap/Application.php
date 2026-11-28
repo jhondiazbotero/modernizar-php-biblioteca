@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Library\Bootstrap;
 
 use Library\Application\Authenticate;
+use Library\Application\EditMember;
+use Library\Application\RegisterMember;
 use Library\Auth\PasswordVerifier;
 use Library\Config\DatabaseConfig;
 use Library\Config\MissingConfigurationException;
@@ -22,6 +24,8 @@ use Library\Http\Session;
 use Library\Http\View;
 use Library\Infrastructure\Clock\RequestClock;
 use Library\Infrastructure\Persistence\PdoLibrarianRepository;
+use Library\Infrastructure\Persistence\PdoMemberRepository;
+use Library\Infrastructure\Persistence\PdoTransactionManager;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
 
@@ -89,7 +93,17 @@ final class Application
                 return new AuthController($this->pages(), new Authenticate(new PdoLibrarianRepository($this->pdo()), new PasswordVerifier()));
             },
             MemberController::class => function () use ($request): MemberController {
-                return new MemberController($this->pages(), new PdoMemberQuery($this->pdo()), $this->clock($request));
+                $clock = $this->clock($request);
+                $transactions = new PdoTransactionManager($this->pdo());
+                $members = new PdoMemberRepository($this->pdo());
+
+                return new MemberController(
+                    $this->pages(),
+                    new PdoMemberQuery($this->pdo()),
+                    new RegisterMember($transactions, $members, $clock),
+                    new EditMember($transactions, $members),
+                    $clock
+                );
             },
             DashboardController::class => function () use ($request): DashboardController {
                 return new DashboardController($this->pages(), new PdoDashboardQuery($this->pdo()), $this->clock($request));

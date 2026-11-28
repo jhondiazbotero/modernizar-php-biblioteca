@@ -28,4 +28,26 @@ final class PdoMemberRepository implements MemberRepository
 
         return new MemberSnapshot((int) $row['id'], (string) $row['nombre'], (bool) $row['activo']);
     }
+
+    public function documentTaken(string $document, int $exceptId): bool
+    {
+        $statement = $this->pdo->prepare('SELECT id FROM socios WHERE documento = ? AND id <> ?');
+        $statement->execute([$document, $exceptId]);
+
+        return $statement->fetch() !== false;
+    }
+
+    public function add(string $document, string $name, string $email, string $phone, \DateTimeImmutable $registeredOn, bool $active): int
+    {
+        $statement = $this->pdo->prepare('INSERT INTO socios (documento, nombre, correo, telefono, fecha_alta, activo) VALUES (?, ?, ?, ?, ?, ?)');
+        $statement->execute([$document, $name, $email, $phone, $registeredOn->format('Y-m-d'), $active ? 1 : 0]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function update(int $id, string $document, string $name, string $email, string $phone, bool $active): void
+    {
+        $statement = $this->pdo->prepare('UPDATE socios SET documento = ?, nombre = ?, correo = ?, telefono = ?, activo = ? WHERE id = ?');
+        $statement->execute([$document, $name, $email, $phone, $active ? 1 : 0, $id]);
+    }
 }

@@ -20,6 +20,7 @@ final class RouterTest extends TestCase
         '/' => [DashboardController::class, 'show', true],
         '/index.php' => [DashboardController::class, 'show', true],
         '/socios.php' => [MemberController::class, 'index', true],
+        '/socio_editar.php' => [MemberController::class, 'edit', true],
         '/socio_ver.php' => [MemberController::class, 'show', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
