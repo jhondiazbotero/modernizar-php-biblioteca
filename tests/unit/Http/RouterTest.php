@@ -195,14 +195,6 @@ final class RouterTest extends TestCase
         self::assertSame(404, $response->getStatus());
     }
 
-    public function test_handles_tells_which_paths_have_a_controller(): void
-    {
-        self::assertTrue(Router::handles('/'));
-        self::assertTrue(Router::handles('/index.php'));
-        self::assertFalse(Router::handles('/no-existe.php'));
-        self::assertFalse(Router::handles(null));
-    }
-
     public function test_a_route_without_a_registered_controller_is_a_configuration_error(): void
     {
         $this->expectException(\LogicException::class);

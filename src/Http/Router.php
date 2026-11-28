@@ -62,11 +62,6 @@ final class Router
         return self::ROUTES;
     }
 
-    public static function handles(?string $path): bool
-    {
-        return $path !== null && isset(self::ROUTES[$path]);
-    }
-
     public function dispatch(Request $request, Session $session): Response
     {
         $path = $request->getPath();

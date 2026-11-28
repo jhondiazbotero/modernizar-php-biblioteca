@@ -13,7 +13,6 @@ services:
       APP_ENV: ${APP_ENV:-production}
     volumes:
       - ./public:/var/www/app/public
-      - ./legacy:/var/www/app/legacy
       - ./src:/var/www/app/src
       - ./templates:/var/www/app/templates
     depends_on:
