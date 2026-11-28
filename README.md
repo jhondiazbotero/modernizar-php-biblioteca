@@ -25,12 +25,14 @@ Para apagarla y borrar los datos: `docker compose down -v`.
 ## Estructura
 
 - `public/`: la única carpeta que sirve Apache: `index.php` (front controller) y `css/`. Las URLs son las de siempre (`/socios.php?...`).
-- `legacy/`: las 15 pantallas heredadas (una por archivo `.php`) y `legacy/includes/` (conexión a la base, funciones comunes, cabecera y pie, `servicios.php` que arma los casos de uso y `mensajes.php` con los textos de error). No se sirven directamente.
-- `src/`: código nuevo, en inglés, con autoload PSR-4 (`Library\`), por capas (ADR 0007):
+- `src/`: código en inglés, con autoload PSR-4 (`Library\`), por capas (ADR 0007 y 0008):
   - `Domain/`: reglas de préstamo, multa, cola de reservas y elegibilidad, y la interfaz `Clock`. No depende de nada.
-  - `Application/`: casos de uso (prestar, devolver, reservar, cancelar, pagar multa) con transacción, y los puertos (`Application/Port/`).
-  - `Infrastructure/`: repositorios PDO, gestor de transacciones y el reloj de la petición.
-  - `Http/`, `Config/`, `Database/`, `Auth/`: enrutador con lista blanca, configuración por variables de entorno y páginas de error (ADR 0004), conexión PDO (ADR 0005) y verificación de contraseñas (ADR 0006).
+  - `Application/`: casos de uso con transacción (prestar, devolver, reservar, cancelar, pagar multa, altas y ediciones de socios y libros, alta y baja de ejemplares, ingreso), los puertos de escritura (`Application/Port/`) y las interfaces de consulta de las pantallas de lectura (`Application/Query/`).
+  - `Infrastructure/`: repositorios PDO, consultas PDO (`Persistence/Query/`), gestor de transacciones y el reloj de la petición.
+  - `Http/`: `Request`, `Response`, `Session`, `Router` (tabla fija de rutas), `View` y `e()` (escape), `Format`, la página de error y los controladores (`Http/Controller/`, uno por área: tablero, ingreso, socios, libros, ejemplares, préstamos, reservas, multas y búsqueda). No usan PDO ni infraestructura.
+  - `Bootstrap/Application.php`: arma a mano la conexión, el reloj, los repositorios, los casos de uso y los controladores.
+  - `Config/`, `Database/`, `Auth/`: configuración por variables de entorno (ADR 0004), conexión PDO (ADR 0005) y verificación de contraseñas (ADR 0006).
+- `templates/`: las plantillas de las pantallas (PHP plano, fuera de `public/`). Todo lo que imprimen pasa por `e()` y una prueba lo comprueba (ADR 0008).
 - `db/`: esquema, datos de ejemplo, creación del bibliotecario `admin` y `migraciones/` para bases que ya existen.
 - `docker/` y `docker-compose.yml`: imagen de PHP 7.4 con Apache y `pdo_mysql` (multi-etapa, con `vendor/` de Composer) y base MySQL 8.4.
 - `tests/unit/`, `tests/integration/` y `tests/characterization/`: pruebas unitarias del código nuevo (PHPUnit 9.6, PHP 7.4), pruebas de integración contra MySQL real (PHPUnit 9.6, PHP 7.4) y pruebas de caracterización (PHP 8.4) con sus snapshots.
@@ -45,7 +47,7 @@ Para apagarla y borrar los datos: `docker compose down -v`.
 | T2 | Pruebas de caracterización (`v0.1.0`) | hecha |
 | T3 | Composer, PSR-4, front controller y configuración por entorno | hecha |
 | T4 | PDO con consultas preparadas y contraseñas con `password_hash` (`v0.2.0`) | hecha |
-| **T5** | **Dominio y casos de uso con transacciones (primera parte: reglas y escrituras); controladores y plantillas, después** | **esta rama** |
+| **T5** | **Dominio y casos de uso con transacciones, controladores y plantillas en todas las pantallas (F4 corregida)** | **esta rama** |
 | T6 | Arreglo de las fallas conocidas | pendiente |
 | T7 | PHP 8.4 | pendiente |
 | T8 | Calidad: análisis estático, estilo y mutación | pendiente |
@@ -64,7 +66,7 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
 
 `bin/test` equivale a `docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm tests` y devuelve el código de salida de PHPUnit.
 
-Qué cubren (152 pruebas, 488 aserciones, unos 30 segundos sin contar la construcción de la imagen):
+Qué cubren (152 pruebas, 489 aserciones, unos 30 segundos sin contar la construcción de la imagen):
 
 - Un snapshot por pantalla, con la sesión iniciada, y la pantalla de ingreso.
 - Sesión: ingreso, clave mala, pantallas protegidas sin sesión y salida; la cuenta con MD5 que pasa a `password_hash` al entrar y el identificador de sesión que cambia.
@@ -79,7 +81,7 @@ Si una pantalla cambia de forma intencional, se reescriben los snapshots con `UP
 
 ### Pruebas unitarias
 
-Cubren el código nuevo de `src/` (dominio, casos de uso con repositorios en memoria, reloj, enrutador, configuración, conexión y contraseñas, y la prueba de arquitectura de las capas) y corren con PHP 7.4, la versión de la aplicación hasta la tarea 7. Son 173 pruebas, 391 aserciones:
+Cubren el código nuevo de `src/` (dominio, casos de uso con repositorios en memoria, reloj, enrutador, controladores con casos de uso y consultas falsos, formato y escape, configuración, conexión y contraseñas, y las pruebas de arquitectura: capas y plantillas) y corren con PHP 7.4, la versión de la aplicación hasta la tarea 7. Son 370 pruebas, 984 aserciones:
 
 ```bash
 bin/unit                      # instala vendor/ con Composer si falta y corre PHPUnit 9.6
@@ -88,7 +90,7 @@ bin/unit --filter FinePolicy
 
 ### Pruebas de integración
 
-Corren los repositorios PDO y las transacciones contra un MySQL real (el del compose, en una base propia que crean y borran) con PHP 7.4. Entre otras cosas, fuerzan un fallo después del primer `UPDATE` de una devolución y comprueban por SQL que no quedó nada a medias. Son 15 pruebas, 90 aserciones:
+Corren los repositorios PDO y las transacciones contra un MySQL real (el del compose, en una base propia que crean y borran) con PHP 7.4. Entre otras cosas, fuerzan un fallo después del primer `UPDATE` de una devolución y comprueban por SQL que no quedó nada a medias. Son 23 pruebas, 142 aserciones:
 
 ```bash
 cp .env.example .env   # y cambia los valores "cambia-esto"
@@ -98,12 +100,12 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
 
 ## Fallas conocidas
 
-La aplicación tuvo cuatro fallas conocidas. Las pruebas de las que siguen abiertas (grupo `known-defect`) las fijan tal como se comportan hoy y se corrigen en próximas versiones.
+La aplicación tuvo cuatro fallas conocidas. Las pruebas de las que siguen abiertas (F1 y F2, grupo `known-defect`) las fijan tal como se comportan hoy y se corrigen en próximas versiones.
 
 - **F1, multa mal calculada** (se conserva en `FinePolicy`): si el préstamo vencido se devuelve en otro mes, los días se calculan restando el día del mes y la multa sale 0 o de menos.
 - **F2, cola de reservas** (se conserva en `ReservationQueue`): la siguiente reserva se elige por el nombre del socio y no por orden de llegada, tanto al devolver como al cancelar.
 - **F3, inyección SQL en la búsqueda: corregida en v0.2.0.** `buscar.php` concatenaba el texto en la consulta; `' OR 1=1 -- ` devolvía todo el catálogo y una comilla mostraba el error de MySQL. La corrigió el paso a consultas preparadas con PDO (ADR 0005): el texto se busca tal cual, con `%`, `_` y `\` como texto.
-- **F4, XSS almacenado:** `socios.php` muestra el nombre del socio sin escapar.
+- **F4, XSS almacenado: corregida (en la próxima versión).** `socios.php` mostraba el nombre del socio sin escapar. Ahora todas las pantallas se arman con plantillas que escapan todo lo que imprimen (ADR 0008) y una prueba falla si una plantilla imprime una variable sin `e()`.
 
 ## Actualizar una base que ya existe
 

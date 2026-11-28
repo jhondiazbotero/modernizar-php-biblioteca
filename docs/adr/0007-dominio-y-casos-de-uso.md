@@ -1,6 +1,6 @@
 # 0007. Dominio y casos de uso en inglés, con transacciones
 
-Estado: aceptada
+Estado: aceptada. Las pantallas heredadas de esta decisión (`legacy/`, `mensaje_error()`, `servicios()`) se reemplazaron por controladores y plantillas en el ADR 0008.
 
 ## Contexto
 
