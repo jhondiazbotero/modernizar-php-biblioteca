@@ -3,7 +3,7 @@ SET NAMES utf8mb4;
 CREATE TABLE bibliotecarios (
     id INT NOT NULL AUTO_INCREMENT,
     usuario VARCHAR(40) NOT NULL,
-    clave CHAR(32) NOT NULL, -- md5
+    clave VARCHAR(255) NOT NULL, -- password_hash, o md5 (32 hex) en cuentas viejas
     nombre VARCHAR(100) NOT NULL,
     PRIMARY KEY (id),
     UNIQUE KEY usuario (usuario)

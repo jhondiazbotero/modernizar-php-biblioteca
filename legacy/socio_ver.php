@@ -5,22 +5,25 @@ verificar_sesion();
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$r = mysqli_query($con, "SELECT * FROM socios WHERE id = $id");
-if (mysqli_num_rows($r) == 0) {
+$consulta = $db->prepare('SELECT * FROM socios WHERE id = ?');
+$consulta->execute(array($id));
+$socio = $consulta->fetch();
+if (!$socio) {
     redirigir('socios.php', 'El socio no existe.', 'error');
 }
-$socio = mysqli_fetch_assoc($r);
 
-$prestamos = mysqli_query($con, "SELECT p.*, l.titulo, e.codigo
+$consulta = $db->prepare('SELECT p.*, l.titulo, e.codigo
     FROM prestamos p
     JOIN ejemplares e ON e.id = p.ejemplar_id
     JOIN libros l ON l.id = e.libro_id
-    WHERE p.socio_id = $id
-    ORDER BY p.fecha_prestamo DESC, p.id DESC");
+    WHERE p.socio_id = ?
+    ORDER BY p.fecha_prestamo DESC, p.id DESC');
+$consulta->execute(array($id));
+$prestamos = $consulta->fetchAll();
 
-$r = mysqli_query($con, "SELECT COALESCE(SUM(multa), 0) AS total FROM prestamos WHERE socio_id = $id AND multa > 0 AND multa_pagada = 0");
-$f = mysqli_fetch_assoc($r);
-$multas_pendientes = $f['total'];
+$consulta = $db->prepare('SELECT COALESCE(SUM(multa), 0) FROM prestamos WHERE socio_id = ? AND multa > 0 AND multa_pagada = 0');
+$consulta->execute(array($id));
+$multas_pendientes = $consulta->fetchColumn();
 
 $hoy = hoy();
 
@@ -49,7 +52,7 @@ include 'includes/cabecera.php';
 </div>
 
 <h3>Préstamos</h3>
-<?php if (mysqli_num_rows($prestamos) == 0) { ?>
+<?php if (count($prestamos) == 0) { ?>
     <p>Este socio todavía no tiene préstamos.</p>
 <?php } else { ?>
 <table>
@@ -61,7 +64,7 @@ include 'includes/cabecera.php';
         <th>Devuelto</th>
         <th class="num">Multa</th>
     </tr>
-    <?php while ($p = mysqli_fetch_assoc($prestamos)) { ?>
+    <?php foreach ($prestamos as $p) { ?>
     <tr>
         <td><?php echo htmlspecialchars($p['titulo']); ?></td>
         <td><?php echo htmlspecialchars($p['codigo']); ?></td>

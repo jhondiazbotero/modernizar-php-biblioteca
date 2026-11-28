@@ -3,7 +3,7 @@ include 'includes/conexion.php';
 include 'includes/funciones.php';
 verificar_sesion();
 
-$socios = mysqli_query($con, "SELECT * FROM socios ORDER BY id ASC");
+$socios = $db->query("SELECT * FROM socios ORDER BY id ASC")->fetchAll();
 
 $titulo = 'Socios';
 include 'includes/cabecera.php';
@@ -24,7 +24,7 @@ include 'includes/cabecera.php';
         <th>Estado</th>
         <th>Acciones</th>
     </tr>
-    <?php while ($s = mysqli_fetch_assoc($socios)) { ?>
+    <?php foreach ($socios as $s) { ?>
     <tr<?php if (!$s['activo']) { echo ' class="inactivo"'; } ?>>
         <td><?php echo htmlspecialchars($s['documento']); ?></td>
         <td><?php echo $s['nombre']; ?></td>

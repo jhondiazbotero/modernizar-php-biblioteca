@@ -4,4 +4,10 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+
+# El contenedor de pruebas corre con tu usuario para que lo que escribe en snapshots/ no quede de root.
+# UID es de solo lectura en bash pero se puede exportar; GID no existe como variable.
+export UID
+export GID="${GID:-$(id -g)}"
+
 exec docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm "$@" tests

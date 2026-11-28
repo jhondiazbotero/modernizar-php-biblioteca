@@ -18,14 +18,16 @@ final class AppClient
     public const DEFAULT_DATE = '2026-04-15 10:00:00';
 
     private readonly Client $http;
+    private readonly CookieJar $cookies;
     private string $date;
 
     public function __construct(?string $baseUri = null, string $date = self::DEFAULT_DATE)
     {
         $this->date = $date;
+        $this->cookies = new CookieJar();
         $this->http = new Client([
             'base_uri' => $baseUri ?? (getenv('APP_URL') ?: 'http://app'),
-            'cookies' => new CookieJar(),
+            'cookies' => $this->cookies,
             'http_errors' => false,
             'allow_redirects' => false,
             'timeout' => 15,
@@ -67,6 +69,14 @@ final class AppClient
             'usuario' => $user,
             'clave' => $password ?? (string) getenv('DEMO_PASSWORD'),
         ], $follow);
+    }
+
+    /** Value of a cookie the application has set, or null. */
+    public function cookie(string $name): ?string
+    {
+        $cookie = $this->cookies->getCookieByName($name);
+
+        return $cookie === null ? null : (string) $cookie->getValue();
     }
 
     /** Path and query of the page a followed redirect ended on (null when none was followed). */

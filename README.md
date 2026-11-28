@@ -24,17 +24,33 @@ Para apagarla y borrar los datos: `docker compose down -v`.
 
 ## Estructura
 
-- `src/`: la aplicación (una pantalla por archivo `.php`, en la raíz web).
-- `src/includes/`: conexión a la base, funciones comunes, cabecera y pie.
-- `db/`: esquema, datos de ejemplo y creación del bibliotecario `admin`.
-- `docker/` y `docker-compose.yml`: imagen de PHP 7.4 con Apache y base MySQL 8.4.
-- `tests/characterization/`: pruebas de caracterización (PHP 8.4) con sus snapshots; `docker-compose.test.yml` y `bin/test` las ejecutan.
+- `public/`: la única carpeta que sirve Apache: `index.php` (front controller) y `css/`. Las URLs son las de siempre (`/socios.php?...`).
+- `legacy/`: las 15 pantallas heredadas (una por archivo `.php`) y `legacy/includes/` (conexión a la base, funciones comunes, cabecera y pie). No se sirven directamente.
+- `src/`: código nuevo, en inglés, con autoload PSR-4 (`Library\`): enrutador con lista blanca, configuración por variables de entorno y páginas de error (ADR 0004), conexión PDO (ADR 0005) y verificación de contraseñas (ADR 0006).
+- `db/`: esquema, datos de ejemplo, creación del bibliotecario `admin` y `migraciones/` para bases que ya existen.
+- `docker/` y `docker-compose.yml`: imagen de PHP 7.4 con Apache y `pdo_mysql` (multi-etapa, con `vendor/` de Composer) y base MySQL 8.4.
+- `tests/unit/` y `tests/characterization/`: pruebas unitarias del código nuevo (PHPUnit 9.6, PHP 7.4) y pruebas de caracterización (PHP 8.4) con sus snapshots.
 - `docs/adr/`: decisiones de arquitectura.
-- `.github/workflows/ci.yml`: revisión de sintaxis, prueba de arranque y pruebas de caracterización.
+- `.github/workflows/ci.yml`: pruebas unitarias, revisión de sintaxis, prueba de arranque y pruebas de caracterización.
+
+## Fases
+
+| Fase | Qué | Estado |
+|---|---|---|
+| T1 | Aplicación heredada en PHP 7.4 | hecha |
+| T2 | Pruebas de caracterización (`v0.1.0`) | hecha |
+| T3 | Composer, PSR-4, front controller y configuración por entorno | hecha |
+| **T4** | **PDO con consultas preparadas y contraseñas con `password_hash` (`v0.2.0`)** | **esta rama** |
+| T5 | Capas y dominio con pruebas unitarias | pendiente |
+| T6 | Arreglo de las fallas conocidas | pendiente |
+| T7 | PHP 8.4 | pendiente |
+| T8 | Calidad: análisis estático, estilo y mutación | pendiente |
+| T9 | Documentación y métricas | pendiente |
+| T10 | Revisión final y `v1.0.0` | pendiente |
 
 ## Pruebas
 
-Las pruebas de caracterización entran por HTTP contra la aplicación levantada y revisan el HTML de cada pantalla y el estado de la base. No dependen del código de `src/`, así que siguen sirviendo cuando cambie por dentro. Corren en un contenedor aparte con PHP 8.4, PHPUnit 12 y Guzzle (ver `docs/adr/`).
+Las pruebas de caracterización entran por HTTP contra la aplicación levantada y revisan el HTML de cada pantalla y el estado de la base. No dependen del código de la aplicación, así que siguen sirviendo cuando cambie por dentro. Corren en un contenedor aparte con PHP 8.4, PHPUnit 12 y Guzzle (ver `docs/adr/`).
 
 ```bash
 cp .env.example .env   # y cambia los valores "cambia-esto"
@@ -44,23 +60,43 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml down -v
 
 `bin/test` equivale a `docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm tests` y devuelve el código de salida de PHPUnit.
 
-Qué cubren (138 pruebas, 442 aserciones, unos 20 segundos sin contar la construcción de la imagen):
+Qué cubren (152 pruebas, 488 aserciones, unos 30 segundos sin contar la construcción de la imagen):
 
 - Un snapshot por pantalla, con la sesión iniciada, y la pantalla de ingreso.
-- Sesión: ingreso, clave mala, pantallas protegidas sin sesión y salida.
+- Sesión: ingreso, clave mala, pantallas protegidas sin sesión y salida; la cuenta con MD5 que pasa a `password_hash` al entrar y el identificador de sesión que cambia.
 - Socios, libros y ejemplares: altas, ediciones, validaciones y bajas.
 - Préstamos y devoluciones: vencimiento a 14 días, rechazos, multa por retraso y cola de reservas.
-- Reservas, pago de multas y búsqueda.
+- Reservas, pago de multas y búsqueda (el texto con comillas, `%`, `_` y `\` se busca como texto).
+- Front controller: lo que no es una pantalla (`/no-existe.php`, `/legacy/socios.php`) responde 404, y una cabecera `X-Fecha-Fija` inválida se ignora.
 
 Para que los resultados no dependan del día, la aplicación acepta la cabecera `X-Fecha-Fija` **solo** cuando corre con `APP_ENV=test`; el CI comprueba que en modo normal se ignora (ADR 0002).
 
 Si una pantalla cambia de forma intencional, se reescriben los snapshots con `UPDATE_SNAPSHOTS=1 bin/test`, se revisa la diferencia con `git diff` y se confirma.
 
+### Pruebas unitarias
+
+Cubren el código nuevo de `src/` (enrutador, configuración, conexión y contraseñas) y corren con PHP 7.4, la versión de la aplicación hasta la tarea 7:
+
+```bash
+bin/unit                      # instala vendor/ con Composer si falta y corre PHPUnit 9.6
+bin/unit --filter LegacyRouter
+```
+
 ## Fallas conocidas
 
-La aplicación tiene cuatro fallas conocidas. Las pruebas (grupo `known-defect`) las fijan tal como se comportan hoy y se corrigen en próximas versiones.
+La aplicación tuvo cuatro fallas conocidas. Las pruebas de las que siguen abiertas (grupo `known-defect`) las fijan tal como se comportan hoy y se corrigen en próximas versiones.
 
 - **F1, multa mal calculada:** si el préstamo vencido se devuelve en otro mes, los días se calculan restando el día del mes y la multa sale 0 o de menos.
 - **F2, cola de reservas:** la siguiente reserva se elige por el nombre del socio y no por orden de llegada, tanto al devolver como al cancelar.
-- **F3, inyección SQL en la búsqueda:** `buscar.php` concatena el texto en la consulta; `' OR 1=1 -- ` devuelve todo el catálogo y una comilla muestra el error de MySQL.
+- **F3, inyección SQL en la búsqueda: corregida en v0.2.0.** `buscar.php` concatenaba el texto en la consulta; `' OR 1=1 -- ` devolvía todo el catálogo y una comilla mostraba el error de MySQL. La corrigió el paso a consultas preparadas con PDO (ADR 0005): el texto se busca tal cual, con `%`, `_` y `\` como texto.
 - **F4, XSS almacenado:** `socios.php` muestra el nombre del socio sin escapar.
+
+## Actualizar una base que ya existe
+
+Las bases creadas antes de `v0.2.0` guardan la clave de los bibliotecarios en una columna de 32 caracteres. Antes de usar este código hay que ampliarla (solo cambia el tipo de la columna; las claves siguen valiendo y se convierten a `password_hash` la primera vez que cada persona entra):
+
+```bash
+docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' < db/migraciones/2026-11-27-01-clave-para-password-hash.sql
+```
+
+Las instalaciones nuevas ya traen la columna ampliada (`db/01-esquema.sql`). Las cuentas con MD5 que nunca vuelvan a entrar siguen en MD5 (ADR 0006).

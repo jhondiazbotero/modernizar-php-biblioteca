@@ -3,15 +3,15 @@ include 'includes/conexion.php';
 include 'includes/funciones.php';
 verificar_sesion();
 
-$q = isset($_GET['q']) ? $_GET['q'] : '';
-$resultado = null;
-$error_sql = '';
+$q = (isset($_GET['q']) && is_string($_GET['q'])) ? $_GET['q'] : '';
+$libros = null;
 
 if ($q != '') {
-    $resultado = mysqli_query($con, "SELECT l.*, (SELECT COUNT(*) FROM ejemplares e WHERE e.libro_id = l.id AND e.estado = 'disponible') AS disponibles FROM libros l WHERE titulo LIKE '%" . $_GET['q'] . "%' OR autor LIKE '%" . $_GET['q'] . "%' ORDER BY titulo ASC");
-    if (!$resultado) {
-        $error_sql = mysqli_error($con);
-    }
+    // El texto se busca tal cual: %, _ y \ llevan una barra para que no sean comodines.
+    $patron = '%' . addcslashes($q, '%_\\') . '%';
+    $consulta = $db->prepare("SELECT l.*, (SELECT COUNT(*) FROM ejemplares e WHERE e.libro_id = l.id AND e.estado = 'disponible') AS disponibles FROM libros l WHERE titulo LIKE ? ESCAPE '\\\\' OR autor LIKE ? ESCAPE '\\\\' ORDER BY titulo ASC");
+    $consulta->execute(array($patron, $patron));
+    $libros = $consulta->fetchAll();
 }
 
 $titulo = 'Buscar libros';
@@ -27,13 +27,11 @@ include 'includes/cabecera.php';
     <p><input type="submit" value="Buscar"></p>
 </form>
 
-<?php if ($error_sql != '') { ?>
-    <div class="mensaje error"><?php echo $error_sql; ?></div>
-<?php } elseif ($resultado) { ?>
-    <?php if (mysqli_num_rows($resultado) == 0) { ?>
+<?php if ($libros !== null) { ?>
+    <?php if (count($libros) == 0) { ?>
     <p>No se encontraron libros para «<?php echo htmlspecialchars($q); ?>».</p>
     <?php } else { ?>
-    <p><?php echo mysqli_num_rows($resultado); ?> resultado(s).</p>
+    <p><?php echo count($libros); ?> resultado(s).</p>
     <table>
         <tr>
             <th>Título</th>
@@ -42,7 +40,7 @@ include 'includes/cabecera.php';
             <th class="num">Disponibles</th>
             <th>Acciones</th>
         </tr>
-        <?php while ($l = mysqli_fetch_assoc($resultado)) { ?>
+        <?php foreach ($libros as $l) { ?>
         <tr>
             <td><?php echo htmlspecialchars($l['titulo']); ?></td>
             <td><?php echo htmlspecialchars($l['autor']); ?></td>
