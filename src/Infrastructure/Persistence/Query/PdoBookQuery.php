@@ -43,6 +43,25 @@ final class PdoBookQuery implements BookQuery
         return $row ? $this->book($row) : null;
     }
 
+    public function titleOf(int $id): ?string
+    {
+        $statement = $this->pdo->prepare('SELECT titulo FROM libros WHERE id = ?');
+        $statement->execute([$id]);
+        $row = $statement->fetch();
+
+        return $row ? (string) $row['titulo'] : null;
+    }
+
+    public function options(): array
+    {
+        $books = [];
+        foreach ($this->pdo->query('SELECT id, titulo, autor FROM libros ORDER BY titulo ASC')->fetchAll() as $row) {
+            $books[] = ['id' => (int) $row['id'], 'title' => (string) $row['titulo'], 'author' => (string) $row['autor']];
+        }
+
+        return $books;
+    }
+
     /**
      * @param array<string, mixed> $row
      *

@@ -30,6 +30,21 @@ final class FakeBookQuery implements BookQuery
         return array_values($this->books);
     }
 
+    public function titleOf(int $id): ?string
+    {
+        return isset($this->books[$id]) ? (string) $this->books[$id]['title'] : null;
+    }
+
+    public function options(): array
+    {
+        $options = [];
+        foreach ($this->books as $book) {
+            $options[] = ['id' => $book['id'], 'title' => $book['title'], 'author' => $book['author']];
+        }
+
+        return $options;
+    }
+
     public function find(int $id): ?array
     {
         if (!isset($this->books[$id])) {

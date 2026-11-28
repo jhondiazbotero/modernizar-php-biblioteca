@@ -16,4 +16,14 @@ interface BookQuery
 
     /** @return array{id: int, isbn: string, title: string, author: string, year: int|null}|null */
     public function find(int $id): ?array;
+
+    /** Title of a book, or null when there is no such book. */
+    public function titleOf(int $id): ?string;
+
+    /**
+     * Every book by title, for the select of the reservation form.
+     *
+     * @return array<int, array{id: int, title: string, author: string}>
+     */
+    public function options(): array;
 }

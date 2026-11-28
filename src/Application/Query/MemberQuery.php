@@ -31,6 +31,13 @@ interface MemberQuery
      */
     public function optionsForLending(): array;
 
+    /**
+     * Active members by name, for the select of the reservation form.
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    public function activeOptions(): array;
+
     /** Pesos of fines the member has not paid yet. */
     public function unpaidFineTotal(int $memberId): float;
 }

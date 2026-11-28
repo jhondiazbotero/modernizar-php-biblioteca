@@ -10,6 +10,7 @@ use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
+use Library\Http\Controller\ReservationController;
 
 /**
  * Sends each URL path to one controller action through a fixed table.
@@ -34,6 +35,7 @@ final class Router
         '/prestar.php' => [LoanController::class, 'lend', true],
         '/devolver.php' => [LoanController::class, 'giveBack', true],
         '/prestamos.php' => [LoanController::class, 'index', true],
+        '/reservas.php' => [ReservationController::class, 'index', true],
         '/login.php' => [AuthController::class, 'login', false],
         '/logout.php' => [AuthController::class, 'logout', false],
     ];

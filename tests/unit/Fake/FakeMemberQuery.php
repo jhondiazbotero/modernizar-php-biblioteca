@@ -56,6 +56,18 @@ final class FakeMemberQuery implements MemberQuery
         return $options;
     }
 
+    public function activeOptions(): array
+    {
+        $options = [];
+        foreach ($this->members as $member) {
+            if ($member['active']) {
+                $options[] = ['id' => $member['id'], 'name' => $member['name']];
+            }
+        }
+
+        return $options;
+    }
+
     public function unpaidFineTotal(int $memberId): float
     {
         return $this->unpaid[$memberId] ?? 0.0;

@@ -7,7 +7,9 @@ namespace Library\Bootstrap;
 use Library\Application\AddCopy;
 use Library\Application\Authenticate;
 use Library\Application\EditBook;
+use Library\Application\CancelReservation;
 use Library\Application\LendCopy;
+use Library\Application\PlaceReservation;
 use Library\Application\EditMember;
 use Library\Application\RegisterBook;
 use Library\Application\RegisterMember;
@@ -26,6 +28,7 @@ use Library\Http\Controller\CopyController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Controller\LoanController;
 use Library\Http\Controller\MemberController;
+use Library\Http\Controller\ReservationController;
 use Library\Http\ErrorPage;
 use Library\Http\PageRenderer;
 use Library\Http\Request;
@@ -46,6 +49,7 @@ use Library\Infrastructure\Persistence\Query\PdoCopyQuery;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
 use Library\Infrastructure\Persistence\Query\PdoLoanQuery;
 use Library\Infrastructure\Persistence\Query\PdoMemberQuery;
+use Library\Infrastructure\Persistence\Query\PdoReservationQuery;
 
 /**
  * Composition root: builds, by hand, everything a request needs (connection, clock,
@@ -126,6 +130,27 @@ final class Application
                     new LendCopy($transactions, $members, $copies, $loans, $reservations, $clock),
                     new ReturnLoan($transactions, $loans, $copies, $reservations, $clock, new FinePolicy(), new ReservationQueue()),
                     $clock
+                );
+            },
+            ReservationController::class => function () use ($request): ReservationController {
+                $transactions = new PdoTransactionManager($this->pdo());
+                $copies = new PdoCopyRepository($this->pdo());
+                $reservations = new PdoReservationRepository($this->pdo());
+
+                return new ReservationController(
+                    $this->pages(),
+                    new PdoReservationQuery($this->pdo()),
+                    new PdoMemberQuery($this->pdo()),
+                    new PdoBookQuery($this->pdo()),
+                    new PlaceReservation(
+                        $transactions,
+                        new PdoMemberRepository($this->pdo()),
+                        new PdoBookRepository($this->pdo()),
+                        $copies,
+                        $reservations,
+                        $this->clock($request)
+                    ),
+                    new CancelReservation($transactions, $reservations, $copies, new ReservationQueue())
                 );
             },
             MemberController::class => function () use ($request): MemberController {
