@@ -21,3 +21,18 @@ services:
     volumes:
       - ./db:/db:ro
       - ./tests/characterization/snapshots:/app/snapshots
+
+  integration:
+    build: tests/integration
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOME: /tmp
+      DB_HOST: db
+      DB_NAME: biblioteca_integracion
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./:/app:ro

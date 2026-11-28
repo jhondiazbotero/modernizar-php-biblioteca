@@ -18,7 +18,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Library\\Tests\\": "tests/unit/"
+            "Library\\Tests\\": "tests/unit/",
+            "Library\\Tests\\Integration\\": "tests/integration/"
         }
     },
     "config": {
