@@ -21,9 +21,14 @@ if ($frontFile === null) {
 // Same working directory the screens had when Apache ran them directly.
 chdir(dirname($frontFile));
 
+// The screen runs in this scope: do not leave it variables that are not its own.
+// $frontFile stays because the screen is included from it.
+unset($frontRoot, $frontPath);
+
 try {
     require $frontFile;
-} catch (MissingConfigurationException $e) {
+} catch (MissingConfigurationException | \PDOException $e) {
+    // The message can carry the variable name, host, user or SQL: it goes to the log, never to the page.
     error_log($e->getMessage());
     http_response_code(500);
     echo ErrorPage::serverError();
