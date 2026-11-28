@@ -1,66 +1,24 @@
 <?php
 include 'includes/conexion.php';
 include 'includes/funciones.php';
+include 'includes/servicios.php';
+include 'includes/mensajes.php';
 verificar_sesion();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $prestamo_id = isset($_POST['prestamo_id']) ? (int)$_POST['prestamo_id'] : 0;
 
-    $consulta = $db->prepare('SELECT p.*, e.libro_id, l.titulo, s.nombre AS socio
-        FROM prestamos p
-        JOIN ejemplares e ON e.id = p.ejemplar_id
-        JOIN libros l ON l.id = e.libro_id
-        JOIN socios s ON s.id = p.socio_id
-        WHERE p.id = ?');
-    $consulta->execute(array($prestamo_id));
-    $p = $consulta->fetch();
-    if (!$p) {
-        redirigir('devolver.php', 'Elige el préstamo que se devuelve.', 'error');
-    }
-    if ($p['fecha_devolucion'] != null) {
-        redirigir('devolver.php', 'Ese préstamo ya fue devuelto.', 'error');
+    $resultado = servicios()['devolver']->handle($prestamo_id);
+    if (!$resultado->isSuccess()) {
+        redirigir('devolver.php', mensaje_error('devolver', $resultado->getErrorCode()), 'error');
     }
 
-    $hoy = hoy();
-
-    // multa: $500 por cada día de retraso
-    $multa = 0;
-    if (strtotime($hoy) > strtotime($p['fecha_vence'])) {
-        $dias = (int)date('j', strtotime($hoy)) - (int)date('j', strtotime($p['fecha_vence']));
-        if ($dias < 0) {
-            $dias = 0;
-        }
-        $multa = $dias * 500;
+    $msg = 'Devolución registrada: ' . $resultado->getBookTitle() . ' de ' . $resultado->getMemberName() . '.';
+    if ($resultado->getFine() > 0) {
+        $msg .= ' Multa por retraso: ' . formato_moneda($resultado->getFine()) . '.';
     }
-
-    $consulta = $db->prepare('UPDATE prestamos SET fecha_devolucion = ?, multa = ? WHERE id = ?');
-    $consulta->execute(array($hoy, $multa, $prestamo_id));
-
-    $ejemplar_id = (int)$p['ejemplar_id'];
-    $libro_id = (int)$p['libro_id'];
-    $msg = 'Devolución registrada: ' . $p['titulo'] . ' de ' . $p['socio'] . '.';
-    if ($multa > 0) {
-        $msg .= ' Multa por retraso: ' . formato_moneda($multa) . '.';
-    }
-
-    // si hay reservas pendientes, el ejemplar se aparta para la siguiente
-    $consulta = $db->prepare("SELECT r.id, s.nombre
-        FROM reservas r
-        JOIN socios s ON s.id = r.socio_id
-        WHERE r.libro_id = ? AND r.estado = 'pendiente'
-        ORDER BY s.nombre ASC
-        LIMIT 1");
-    $consulta->execute(array($libro_id));
-    $sig = $consulta->fetch();
-    if ($sig) {
-        $consulta = $db->prepare("UPDATE reservas SET estado = 'asignada', ejemplar_id = ? WHERE id = ?");
-        $consulta->execute(array($ejemplar_id, (int)$sig['id']));
-        $consulta = $db->prepare("UPDATE ejemplares SET estado = 'reservado' WHERE id = ?");
-        $consulta->execute(array($ejemplar_id));
-        $msg .= ' Ejemplar apartado para ' . $sig['nombre'];
-    } else {
-        $consulta = $db->prepare("UPDATE ejemplares SET estado = 'disponible' WHERE id = ?");
-        $consulta->execute(array($ejemplar_id));
+    if ($resultado->getAssignedMemberName() !== null) {
+        $msg .= ' Ejemplar apartado para ' . $resultado->getAssignedMemberName();
     }
 
     redirigir('prestamos.php', $msg, 'ok');
