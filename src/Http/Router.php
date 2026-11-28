@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Library\Http;
 
+use Library\Http\Controller\AuthController;
 use Library\Http\Controller\DashboardController;
 
 /**
@@ -20,6 +21,8 @@ final class Router
     private const ROUTES = [
         '/' => [DashboardController::class, 'show', true],
         '/index.php' => [DashboardController::class, 'show', true],
+        '/login.php' => [AuthController::class, 'login', false],
+        '/logout.php' => [AuthController::class, 'logout', false],
     ];
 
     /** @var array<string, callable> controller class => function that builds it */

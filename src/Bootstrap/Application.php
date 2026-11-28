@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Library\Bootstrap;
 
+use Library\Application\Authenticate;
+use Library\Auth\PasswordVerifier;
 use Library\Config\DatabaseConfig;
 use Library\Config\MissingConfigurationException;
 use Library\Database\ConnectionFactory;
 use Library\Domain\Clock;
+use Library\Http\Controller\AuthController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\ErrorPage;
 use Library\Http\PageRenderer;
@@ -17,6 +20,7 @@ use Library\Http\Router;
 use Library\Http\Session;
 use Library\Http\View;
 use Library\Infrastructure\Clock\RequestClock;
+use Library\Infrastructure\Persistence\PdoLibrarianRepository;
 use Library\Infrastructure\Persistence\Query\PdoDashboardQuery;
 
 /**
@@ -79,6 +83,9 @@ final class Application
     private function factories(Request $request): array
     {
         return [
+            AuthController::class => function (): AuthController {
+                return new AuthController($this->pages(), new Authenticate(new PdoLibrarianRepository($this->pdo()), new PasswordVerifier()));
+            },
             DashboardController::class => function () use ($request): DashboardController {
                 return new DashboardController($this->pages(), new PdoDashboardQuery($this->pdo()), $this->clock($request));
             },

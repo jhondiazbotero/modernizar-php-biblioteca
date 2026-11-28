@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Library\Tests\Http;
 
+use Library\Http\Controller\AuthController;
 use Library\Http\Controller\DashboardController;
 use Library\Http\Request;
 use Library\Http\Response;
@@ -17,6 +18,8 @@ final class RouterTest extends TestCase
     private const EXPECTED = [
         '/' => [DashboardController::class, 'show', true],
         '/index.php' => [DashboardController::class, 'show', true],
+        '/login.php' => [AuthController::class, 'login', false],
+        '/logout.php' => [AuthController::class, 'logout', false],
     ];
 
     /** @var array<int, string> controllers built */
